@@ -1,87 +1,112 @@
-from utils import generar_combinaciones_binarias_little_endian
-from utils import transponer_matriz
+from utils import generarMatrizPresenteInicial
+from utils import generarMatrizFuturoInicial
+import numpy as np
 
 # ENTRADAS DE DATOS
+TPM = np.array([
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1]
+])
 
-#* Matriz de probabilidades
-TPM = [
-    [0.7, 0.3, 1  , 0  ], 
-    [0.4, 0.6, 0.2, 1  ],
-    [0.3, 0  , 1  , 0.4],
-    [0.5, 0.5, 0.3, 0.7],
-]
 
-subconjuntoSistemaCandidato = [
+subconjuntoSistemaCandidato = np.array([
     'at', 'bt', 'ct', 'at+1', 'bt+1', 'ct+1'
-]
+])
 
-estadoActualElementos = {
-    'at': 1,
-    'bt': 0,
-    'ct': 0,
-    'dt': 0
-}
+estadoActualElementos = np.array([
+    {'at': 1},
+    {'bt': 0},
+    {'ct': 0},
+    {'dt': 0}
+])
 
-
-#* El subconjunto de elementos a analizar 
 #* SISTEMA CANDIDATO
-subconjuntoElementos = ['at', 'bt', 'ct']
+subconjuntoElementos = np.array(['at', 'bt', 'ct'])
 
-#* Calcular distribución
-# def calcularDistribucion(TPM):
-#     #* obtener los elementos del sistema
-#     elementos = [ ]
-#     for i in estadoActualElementos:
-#         elementos.append(i)
+#* MATRICES INICIALES
+n = len(estadoActualElementos)
+matrizPresente = generarMatrizPresenteInicial(n)
 
-#     #* Crear matriz en t siguiendo la notacion little endian
-#     matrizT = [ ]
+matrizFuturo = generarMatrizFuturoInicial(matrizPresente)
 
-#     for i in range(0, len(elementos)):
-        
+# #* Condiciones de background
+
+#* Elementos que no hacen parte del sistema cantidato
+elementosBackground = [elemento for elemento in estadoActualElementos if next(iter(elemento)) not in subconjuntoElementos]
+
+nuevaTPM = np.copy(TPM)
+nuevaMatrizPresente = np.copy(matrizPresente)
+nuevaMatrizFuturo = np.copy(matrizFuturo)
+#? aplicar condiciones de background
+#? Params
+#? matrizPresente: matriz presente
+#? matrizFuturo: matriz futuro
+#? TPM: matriz de transición de probabilidad
+#? elementosBackground: elementos del background {elemento: valor inicial}
+def aplicarCondicionesBackground(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosBackground):
+    if len(elementosBackground) > 0:
+        for elemento in elementosBackground:
+
+            llave = list(elemento.keys())[0]
+
+            indice = next((idx for idx, i in enumerate(estadoActualElementos) if llave in i), len(estadoActualElementos))
+
+            valorActualElemento = elemento[llave]
+            
+            #* Ya sabemos la posicion del elementp
+            #* Ahora buscamos en la matriz presente y futura la fila y columna correspondiente
+            # Si el valor actual del elemento es 0 dejamos las filas que tengan 1
+            # Si el valor actual del elemento es 1 dejamos las filas que tengan 0
+            for i in range(len(nuevaMatrizPresente)):
+                if nuevaMatrizPresente[i][indice] == 0 if valorActualElemento == 0 else 1:
+                    nuevaMatrizPresente[i].fill(99)
+
+            filas_a_eliminar = []
+            for i in range(len(nuevaMatrizPresente)):
+                if 99 in nuevaMatrizPresente[i]:
+                    filas_a_eliminar.append(i)
+
+            # Ahora eliminamos las filas de la matriz presente usando los índices acumulados
+            nuevaMatrizPresente = np.delete(nuevaMatrizPresente, filas_a_eliminar, axis=0)
+
+            
+            # Ahora eliminamos las columnas de la matriz presente que estén en la posición indice
+            nuevaMatrizPresente = np.delete(nuevaMatrizPresente, indice, axis=1)
+
+            nuevaTPM = np.delete(nuevaTPM, filas_a_eliminar, axis=0)
+
+            for i in nuevaMatrizPresente:
+                print(i)
+
+    
+    return nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM
+            
+
+            
 
 
-# calcularDistribucion(TPM)
+#* Aplicar condiciones de background
+nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarCondicionesBackground(matrizPresente, matrizFuturo, nuevaTPM, elementosBackground)            
+
+print("Matriz presente")
+print(nuevaMatrizPresente)
+print("Matriz futuro")
+print(nuevaMatrizFuturo)
+print("TPM")
+print(nuevaTPM)
 
 
-
-# Ejemplo para n = 4
-n = 4
-matrizPresente = generar_combinaciones_binarias_little_endian(n)
-
-# Imprimir todas las combinaciones en little endian
-for combinacion in matrizPresente:
-    print(combinacion)
-
-MatrizFuturo = transponer_matriz(matrizPresente)
-for i in MatrizFuturo:
-    print(i)
-
-#* Condiciones de background
-
-# obtener los elementos del sistema que no hacen parte del sistema candidato y su posicion
-elementosBackground = [ ]
-posicion = []
-for i in estadoActualElementos:
-    if i not in subconjuntoElementos:
-        elementosBackground.append({ i: estadoActualElementos[i] })
-
-print(elementosBackground)
-
-#* aplicar condiciones de background
-if len(elementosBackground) > 0:
-    for elemento in elementosBackground:
-        #* obtener el index del elemento en la matriz presente y futuro
-        index = 0
-        for i in estadoActualElementos:
-            if i == list(elemento.keys())[0]:
-                index = list(estadoActualElementos.keys()).index(i)
-                break
-        
-        #* aplicar la condicion de background
-        #* verificar el valor del elemento en el estado actual
-        if list(elemento.values())[0] == 0:
-            pass
-
-        else:
-            pass

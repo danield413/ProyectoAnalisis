@@ -1,15 +1,16 @@
-def generar_combinaciones_binarias_little_endian(n):
-    combinaciones = []
-    # Generamos números del 0 al 2^n - 1, que son todas las combinaciones binarias
-    for i in range(2 ** n):
-        # Convierte el número 'i' a su representación binaria y lo rellena con ceros para que tenga 'n' bits
-        combinacion = format(i, f'0{n}b')
-        # Convertir el string binario a una lista de enteros y luego invertir el orden (little endian)
-        combinaciones.append([int(bit) for bit in combinacion[::-1]])
+import numpy as np
+
+def generarMatrizPresenteInicial(n):
+    # Generamos un array de números de 0 a 2^n - 1
+    combinaciones = np.arange(2 ** n)
     
-    return combinaciones
+    # Convertimos cada número a su representación binaria, rellenamos con ceros, invertimos (little-endian)
+    binario_array = np.unpackbits(combinaciones[:, None].astype(np.uint8), axis=1)[:, -n:]
+    
+    return np.fliplr(binario_array)
 
+import numpy as np
 
-def transponer_matriz(matriz):
-    # Usar comprensión de listas para transponer la matriz
-    return [[fila[i] for fila in matriz] for i in range(len(matriz[0]))]
+def generarMatrizFuturoInicial(matriz):
+    # Convertir la lista de listas a una matriz NumPy y luego transponerla
+    return np.array(matriz).T
