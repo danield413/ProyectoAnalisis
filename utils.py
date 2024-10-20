@@ -14,3 +14,7 @@ import numpy as np
 def generarMatrizFuturoInicial(matriz):
     # Convertir la lista de listas a una matriz NumPy y luego transponerla
     return np.array(matriz).T
+
+
+def elementosNoSistemaCandidato(estadoActualElementos, subconjuntoElementos):
+    return [elemento for elemento in reversed(estadoActualElementos) if next(iter(elemento)) not in subconjuntoElementos]
