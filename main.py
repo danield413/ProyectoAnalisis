@@ -40,7 +40,7 @@ estadoActualElementos = np.array([
 
 #? SISTEMA CANDIDATO
 #? El subconjunto de elementos a analizar (sistema candidato) aquí solo se requiere n los elementos en t
-subconjuntoElementos = np.array(['at', 'bt'])
+subconjuntoElementos = np.array(['at', 'bt', 'ct'])
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
@@ -239,20 +239,237 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
 
     #* Matrices resultantes del proceso de representacion
     matricesPresentes = nuevaMatrizPresente
-    matricesFuturas = np.array([])
-    matricesTPM = np.array([])
+    matricesFuturas = dict()
+    matricesTPM = dict()
 
     elementosT1Revisados = np.array([])
+  
 
     for elementoT1 in elementosT1:
 
+        copiaMatrizFuturo = np.copy(nuevaMatrizFuturo)
+        copiaTPM = np.copy(nuevaTPM)
+
         #* si el elemento futuro no se ha revisado
         if (elementoT1 not in elementosT1Revisados):
-            pass
+            elementosT1Revisados = np.append(elementosT1Revisados, elementoT1)
             
+            #* buscar el indice del elemento (si es por ejm at+1, buscar at) en el estado actual
+            indice = indicesElementosT[elementoT1[:-2]]
+            #* borrar las filas de la matriz futuro excepto la fila indice
+            copiaMatrizFuturo = np.delete(copiaMatrizFuturo, [i for i in range(len(copiaMatrizFuturo)) if i != indice], axis=0)
+            print("Matriz futuro")
+            print(copiaMatrizFuturo)
 
+            #? proceso
+            #* identificar los grupos que se repiten en columnas
+            arreglo = [[] for i in range(len(copiaMatrizFuturo[0]))]
+            for fila in copiaMatrizFuturo:
+                for idx, valor in enumerate(fila):
+                    arreglo[idx].append(valor)
+
+            #* recorrer los grupos
+            subarreglos_repetidos = {}
+
+            # Iterar sobre el arreglo y buscar repetidos
+            for i, subarreglo in enumerate(arreglo):
+                subarreglo_tuple = tuple(subarreglo)  # Convertir el subarreglo a tupla (para ser hashable)
+                if subarreglo_tuple in subarreglos_repetidos:
+                    subarreglos_repetidos[subarreglo_tuple].append(i)
+                else:
+                    subarreglos_repetidos[subarreglo_tuple] = [i]
+
+            # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
+            repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
+
+            # print("Repetidos")
+            # print(repetidos_con_indices)
+
+            for subarreglo, indices in repetidos_con_indices.items():
+                menorIndice = min(indices)
+                #* recorre [0,1,16]
+                for i in indices:
+                    #* i != 0
+                    if i != menorIndice:
+                        
+                        #* si es menor recorro las fila de TPM
+                        #* recorrer la tpm y sumar a la fila menorIndice la fila i
+                        for k in copiaTPM:
+                            k[menorIndice] += k[i]
+                            #* el valor de la columna de la fila k
+                            k[i] = 99
+
+                        for k in copiaMatrizFuturo:
+                            k[i] = 77
+
+            #* Transponer la matriz para eliminar las columnas con 99
+            copiaTPM = copiaTPM.T
+            copiaMatrizFuturo = copiaMatrizFuturo.T
+
+            #* Eliminar las columnas con 99
+            filas_a_eliminar = []
+            for i in range(len(copiaTPM)):
+                if 99 in copiaTPM[i]:
+                    filas_a_eliminar.append(i)
+
+            copiaTPM = np.delete(copiaTPM, filas_a_eliminar, axis=0)
+
+            #* Eliminar las columnas con 77
+            filas_a_eliminar = []
+            for i in range(len(copiaMatrizFuturo)):
+                if 77 in copiaMatrizFuturo[i]:
+                    filas_a_eliminar.append(i)
+
+            copiaMatrizFuturo = np.delete(copiaMatrizFuturo, filas_a_eliminar, axis=0)
+
+            #* Transponer la matriz para dejarla como estaba
+            copiaTPM = copiaTPM.T
+            copiaMatrizFuturo = copiaMatrizFuturo.T
+
+            print("elementoT1")
+            print(elementoT1)
+            print("--------")
+            print("Matriz futuro")
+            for i in copiaMatrizFuturo:
+                print(i)
+            print("TPM")
+            for i in copiaTPM:
+                print(i)
+            print("--------")
+
+            matricesFuturas[elementoT1] = copiaMatrizFuturo
+            matricesTPM[elementoT1] = copiaTPM
+
+    return matricesPresentes, matricesFuturas, matricesTPM
 
 
 #? Ejecución de la representación
 print("------ REPRESENTACIÓN -----------")
-partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1)
+matricesPresentes, matricesFuturas, matricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1)
+
+print("Matrices Presentes (para todos los t+1)")
+print(matricesPresentes)
+print("Matrices Futuras")
+for i in matricesFuturas:
+    print(i)
+    for j in matricesFuturas[i]:
+        print(j)
+print("Matrices TPM")
+for i in matricesTPM:
+    print(i)
+    for j in matricesTPM[i]:
+        print(j)
+
+
+#? ------------------ INICIAR PROCESO PRINCIPAL ----------------------------
+'''
+- Proceso:
+Comenzar con un conjunto V de todos los elementos en t. Es decir, V tendrá los nodos del
+subsistema del conjunto candidato a analizar.
+a) Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V.
+b) Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
+• Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
+donde g(X) es la función EMD entre la distribución de probabilidades resultante de
+P( X) ⊗ P( X’) y la distribución del sistema sin dividir, asi: EMD(P(X) ⊗ P( X’), P(V) )
+• Establecer Wi = Wi-1 ∪ {vi}
+c) Construcción de Pares:
+• El par (vn-1, vn) forma un "par candidato".
+d) Recursión:
+• Si |V| > 2, repetir el proceso con V' = V \ {vn-1, vn} ∪ {u}, donde u representa la
+unión de vn-1 y vn.
+• Continuar hasta que |V| = 2.
+e) Evaluación Final:
+• Para cada par candidato (a, b) encontrado:
+o Evaluar la división que separa {b} del resto de nodos.
+• La división con el menor valor de diferencia es la solución al problema.
+'''
+
+import numpy as np
+from scipy.stats import wasserstein_distance
+
+# Función para calcular EMD con Hamming distance
+def emd_pyphi(u: np.ndarray, v: np.ndarray) -> float:
+    if not all(isinstance(arr, np.ndarray) for arr in [u, v]):
+        raise TypeError("u and v must be numpy arrays.")
+    
+    n: int = len(u)
+    costs: np.ndarray = np.empty((n, n))
+    
+    # Crear la matriz de costos basada en la distancia de Hamming
+    for i in range(n):
+        costs[i, :i] = [hamming_distance(i, j) for j in range(i)]
+        costs[:i, i] = costs[i, :i]
+    
+    # Llenar la diagonal con ceros (no hay costo en mover entre el mismo elemento)
+    np.fill_diagonal(costs, 0)
+    
+    cost_matrix: np.ndarray = np.array(costs, dtype=np.float64)
+    
+    # Calcular la Earth Mover's Distance usando pyemd y la matriz de costos
+    return emd(u, v, cost_matrix)
+
+def hamming_distance(a: int, b: int) -> int:
+    return (a ^ b).bit_count()
+
+
+#* PARAMS
+#* nuevaTPM: Matriz de transición de probabilidad: [ [1,0,0, ... ], [0,1,0, ...], [0,0,1, ...], ... ]
+#* subconjuntoElementos: Subconjunto de elementos a analizar: ['at', 'bt', 'ct']
+#* subconjuntoSistemaCandidato: Subconjunto del sistema candidato a analizar: ['at','bt','ct','at+1', 'bt+1', 'ct+1']
+#* estadoActualElementos: Estado actual de todos los elementos del sistema: [{'at': 0}, {'bt': 0}, {'ct': 1}, {'dt': 0}]
+def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
+    V = subconjuntoElementos
+
+    # Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V.
+    W0 = []
+    W1 = [V[0]]
+
+    # Iteración principal
+    for i in range(1, len(V)):
+        # Inicializar variables para almacenar el mejor vi
+        mejor_vi = None
+        mejor_valor = float('inf')
+        
+        # Buscar vi ∈ V \ Wi-1 que minimiza g(Wi-1 ∪ {vi}) - g({vi})
+        for vi in V:
+            if vi not in W1:
+                # Calcular g(Wi-1 ∪ {vi})
+                g_Wi_union_vi = calcular_g(W1 + [vi], nuevaTPM, estadoActualElementos)
+                
+                # Calcular g({vi})
+                g_vi = calcular_g([vi], nuevaTPM, estadoActualElementos)
+                
+                # Calcular la diferencia
+                diferencia = g_Wi_union_vi - g_vi
+                
+                # Si la diferencia es mínima, actualizar mejor vi
+                if diferencia < mejor_valor:
+                    mejor_valor = diferencia
+                    mejor_vi = vi
+        
+        # Agregar el mejor vi encontrado a W1
+        W1.append(mejor_vi)
+
+    # Aquí va la recursión:
+    # Si el tamaño de V es mayor que 2, reducir el conjunto V
+    if len(V) > 2:
+        # Encontrar los últimos dos elementos agregados a W1 (vn-1, vn)
+        vn_1 = W1[-2]
+        vn = W1[-1]
+
+        # Crear un nuevo "elemento" uniendo vn-1 y vn
+        u = (vn_1, vn)  # Puedes representar la unión de manera adecuada
+        
+        # Eliminar vn-1 y vn de V y agregar el nuevo elemento u
+        V = [v for v in V if v not in [vn_1, vn]]
+        V.append(u)
+        
+        # Llamar recursivamente a la función con el nuevo conjunto reducido
+        algoritmo(nuevaTPM, V, subconjuntoSistemaCandidato, estadoActualElementos)
+
+    # Final del proceso, cuando queden solo dos elementos en V
+    return W1  # Devuelve el conjunto construido
+
+# Ejecutar el algoritmo
+resultado = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+print(resultado)
