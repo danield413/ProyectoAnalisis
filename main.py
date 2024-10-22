@@ -27,7 +27,7 @@ TPM = np.array([
 #? El subconjunto del sistema candidato a analizar 
 #? (aquí deben darse los elementos tanto en t como en t+1, ya que no necesariamente se tendrán en t+1 los mismos elementos que en t)
 subconjuntoSistemaCandidato = np.array([
-    'at','bt' ,'at+1', 'bt+1'
+    'at','bt','ct','at+1', 'bt+1', 'ct+1'
 ])
 
 #? El estado actual de todos los elementos del sistema
@@ -107,13 +107,13 @@ def aplicarCondicionesBackground(nuevaMatrizPresente, nuevaTPM, elementosBackgro
 #? Ejecución de las condiciones de background
 nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarCondicionesBackground(matrizPresente, nuevaTPM, elementosBackground)            
 
-print("------ BACKGROUND -----------")
-print("Matriz presente")
-print(nuevaMatrizPresente)
-print("Matriz futuro")
-print(nuevaMatrizFuturo)
-print("TPM")
-print(nuevaTPM)
+# print("------ BACKGROUND -----------")
+# print("Matriz presente")
+# print(nuevaMatrizPresente)
+# print("Matriz futuro")
+# print(nuevaMatrizFuturo)
+# print("TPM")
+# print(nuevaTPM)
 
 #? ----------------- APLICAR MARGINALIZACIÓN INICIAL ---------------------------------
 def aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, subconjuntoSistemaCandidato, elementosBackground):
@@ -214,7 +214,7 @@ def aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, subconjuntoSistemaCandid
 #? Ejecución de la marginalización
 nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, subconjuntoSistemaCandidato, elementosBackground)
 
-print("------ MARGINALIZACIÓN -----------")
+# print("------ MARGINALIZACIÓN -----------")
 
 print("Matriz presente")
 print(nuevaMatrizPresente)
@@ -225,3 +225,34 @@ print(nuevaTPM)
 
 
 #? ------------------ INICIAR PROCESO DE COMPARACION ----------------------------
+
+#? DIVIDIR EN LA REPRESENTACION
+#? P(ABC t | ABC t+1) = P(ABC t | A t+1) X P(ABC t | B t+1) X P(ABC t | C t+1)
+
+#* tomar el subconjunto de elementos (los de t y t+1) con su indice
+elementosT = [elem for elem in subconjuntoSistemaCandidato if 't' in elem and 't+1' not in elem]
+elementosT1 = [elem for elem in subconjuntoSistemaCandidato if 't+1' in elem]
+
+indicesElementosT = {list(elem.keys())[0]: idx for idx, elem in enumerate(estadoActualElementos) if list(elem.keys())[0] in elementosT}
+
+def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1):
+
+    #* Matrices resultantes del proceso de representacion
+    matricesPresentes = nuevaMatrizPresente
+    matricesFuturas = np.array([])
+    matricesTPM = np.array([])
+
+    elementosT1Revisados = np.array([])
+
+    for elementoT1 in elementosT1:
+
+        #* si el elemento futuro no se ha revisado
+        if (elementoT1 not in elementosT1Revisados):
+            pass
+            
+
+
+
+#? Ejecución de la representación
+print("------ REPRESENTACIÓN -----------")
+partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1)
