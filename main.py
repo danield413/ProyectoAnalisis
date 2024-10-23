@@ -404,20 +404,20 @@ from scipy.stats import wasserstein_distance
 #* subconjuntoSistemaCandidato: Subconjunto del sistema candidato a analizar: ['at','bt','ct','at+1', 'bt+1', 'ct+1']
 #* estadoActualElementos: Estado actual de todos los elementos del sistema: [{'at': 0}, {'bt': 0}, {'ct': 1}, {'dt': 0}]
 
-# def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
+def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
     
-#     V = subconjuntoElementos
-#     print(V)
+    V = subconjuntoElementos
+    print(V)
 
-#     #* Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
-#     W0 = []
-#     W1 = [ V[0] ] 
-#     solucion = []
+    #* Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
+    W0 = []
+    W1 = [ V[0] ] 
+    solucion = []
 
-#     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
-#     for i in range(2, len(V)+1):
-#         #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
-#         vi = subconjuntoElementos[i-1]
+    #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
+    for i in range(2, len(V)+1):
+        #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
+        vi = subconjuntoElementos[i]
         
         
 

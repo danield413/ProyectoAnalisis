@@ -25,29 +25,28 @@ def emd_manual(u: np.ndarray, v: np.ndarray) -> float:
 
     return total_emd
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    # Distribución P(X)
-    P_X = np.array([0,1], dtype=np.float64)
-    
-    # Distribución P(X')
-    P_X_prima = np.array([1, 0], dtype=np.float64)
-    
-    # Distribución objetivo P(V)
-    P_V = np.array([0, 0, 0, 0], dtype=np.float64)
+# Producto tensorial entre 3 vectores
+# v1 = np.array([1, 0])
+# v2 = np.array([1, 0])
+# v3 = np.array([1, 0])
 
-    # Paso 1: Calcular el producto tensorial de P(X) y P(X')
-    P_X_X_prima = producto_tensorial(P_X, P_X_prima)
-    print("Producto tensorial P(X) ⊗ P(X'):")
-    print(P_X_X_prima)
-    
-    # Paso 2: Aplanar la matriz resultante
-    P_X_X_prima_flat = aplanar_matriz(P_X_X_prima)
-    print("\nProducto tensorial aplanado:")
-    print(P_X_X_prima_flat)
-    
-    # Paso 3: Calcular la EMD entre el producto tensorial y P(V)
-    resultado_emd = emd_manual(P_X_X_prima_flat, P_V)
-    
-    # Imprimir el resultado
-    print(f"\nEMD entre P(X) ⊗ P(X') y P(V): {resultado_emd}")
+# # Calculamos el producto tensorial entre los 3 vectores
+# tensor_12 = producto_tensorial(v1, v2)
+# tensor_123 = producto_tensorial(tensor_12.flatten(), v3)
+
+# print(tensor_123.flatten())
+
+# emdresult = emd_manual(tensor_123.flatten(), np.array([0, 1, 0, 0, 0, 0, 0, 0]))
+# print(emdresult)
+
+# Producto tensorial entre 3 vectores
+v1 = np.array([1, 0,0,0,0,0,0,0])
+v2 = np.array([0])
+
+# Calculamos el producto tensorial entre los 3 vectores
+tensor_123 = producto_tensorial(v1, v2)
+
+print(tensor_123.flatten())
+
+# emdresult = emd_manual(tensor_123.flatten(), np.array([0, 1, 0, 0, 0, 0, 0, 0]))
+# print(emdresult)
