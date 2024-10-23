@@ -3,6 +3,7 @@ from utils import generarMatrizFuturoInicial
 from utils import elementosNoSistemaCandidato
 import numpy as np
 
+
 #? ----------------- ENTRADAS DE DATOS ---------------------------------
 #? Matriz de transición de probabilidad
 TPM = np.array([
@@ -27,7 +28,7 @@ TPM = np.array([
 #? El subconjunto del sistema candidato a analizar 
 #? (aquí deben darse los elementos tanto en t como en t+1, ya que no necesariamente se tendrán en t+1 los mismos elementos que en t)
 subconjuntoSistemaCandidato = np.array([
-    'at','bt','ct','at+1', 'bt+1', 'ct+1'
+    'at','bt','at+1', 'bt+1'
 ])
 
 #? El estado actual de todos los elementos del sistema
@@ -40,7 +41,7 @@ estadoActualElementos = np.array([
 
 #? SISTEMA CANDIDATO
 #? El subconjunto de elementos a analizar (sistema candidato) aquí solo se requiere n los elementos en t
-subconjuntoElementos = np.array(['at', 'bt', 'ct'])
+subconjuntoElementos = np.array(['at', 'bt'])
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
@@ -222,7 +223,7 @@ print("Matriz futuro")
 print(nuevaMatrizFuturo)
 print("TPM")
 print(nuevaTPM)
-
+print("-----------------")
 
 #? ------------------ INICIAR PROCESO DE COMPARACION ----------------------------
 
@@ -326,17 +327,6 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
             copiaTPM = copiaTPM.T
             copiaMatrizFuturo = copiaMatrizFuturo.T
 
-            print("elementoT1")
-            print(elementoT1)
-            print("--------")
-            print("Matriz futuro")
-            for i in copiaMatrizFuturo:
-                print(i)
-            print("TPM")
-            for i in copiaTPM:
-                print(i)
-            print("--------")
-
             matricesFuturas[elementoT1] = copiaMatrizFuturo
             matricesTPM[elementoT1] = copiaTPM
 
@@ -360,7 +350,25 @@ for i in matricesTPM:
     for j in matricesTPM[i]:
         print(j)
 
+# def organizar():
+#     elementosT = [elem for elem in subconjuntoSistemaCandidato if 't' in elem and 't+1' not in elem]
+#     print(elementosT)
 
+#     estadosInicialesElementosT = []
+
+#     for elemento in elementosT:
+#         for j in estadoActualElementos:
+#             if list(j.keys())[0] == elemento:
+#                 estadosInicialesElementosT.append(list(j.values())[0])
+    
+#     print(estadosInicialesElementosT)
+
+#     # llave = list(elemento.keys())[0]  
+
+#     # indice = indicesCondicionesBackGround[llave]
+
+
+# organizar()
 #? ------------------ INICIAR PROCESO PRINCIPAL ----------------------------
 '''
 - Proceso:
@@ -388,28 +396,6 @@ import numpy as np
 from scipy.stats import wasserstein_distance
 
 # Función para calcular EMD con Hamming distance
-def emd_pyphi(u: np.ndarray, v: np.ndarray) -> float:
-    if not all(isinstance(arr, np.ndarray) for arr in [u, v]):
-        raise TypeError("u and v must be numpy arrays.")
-    
-    n: int = len(u)
-    costs: np.ndarray = np.empty((n, n))
-    
-    # Crear la matriz de costos basada en la distancia de Hamming
-    for i in range(n):
-        costs[i, :i] = [hamming_distance(i, j) for j in range(i)]
-        costs[:i, i] = costs[i, :i]
-    
-    # Llenar la diagonal con ceros (no hay costo en mover entre el mismo elemento)
-    np.fill_diagonal(costs, 0)
-    
-    cost_matrix: np.ndarray = np.array(costs, dtype=np.float64)
-    
-    # Calcular la Earth Mover's Distance usando pyemd y la matriz de costos
-    return emd(u, v, cost_matrix)
-
-def hamming_distance(a: int, b: int) -> int:
-    return (a ^ b).bit_count()
 
 
 #* PARAMS
@@ -417,59 +403,25 @@ def hamming_distance(a: int, b: int) -> int:
 #* subconjuntoElementos: Subconjunto de elementos a analizar: ['at', 'bt', 'ct']
 #* subconjuntoSistemaCandidato: Subconjunto del sistema candidato a analizar: ['at','bt','ct','at+1', 'bt+1', 'ct+1']
 #* estadoActualElementos: Estado actual de todos los elementos del sistema: [{'at': 0}, {'bt': 0}, {'ct': 1}, {'dt': 0}]
-def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
-    V = subconjuntoElementos
 
-    # Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V.
-    W0 = []
-    W1 = [V[0]]
+# def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
+    
+#     V = subconjuntoElementos
+#     print(V)
 
-    # Iteración principal
-    for i in range(1, len(V)):
-        # Inicializar variables para almacenar el mejor vi
-        mejor_vi = None
-        mejor_valor = float('inf')
+#     #* Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
+#     W0 = []
+#     W1 = [ V[0] ] 
+#     solucion = []
+
+#     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
+#     for i in range(2, len(V)+1):
+#         #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
+#         vi = subconjuntoElementos[i-1]
         
-        # Buscar vi ∈ V \ Wi-1 que minimiza g(Wi-1 ∪ {vi}) - g({vi})
-        for vi in V:
-            if vi not in W1:
-                # Calcular g(Wi-1 ∪ {vi})
-                g_Wi_union_vi = calcular_g(W1 + [vi], nuevaTPM, estadoActualElementos)
-                
-                # Calcular g({vi})
-                g_vi = calcular_g([vi], nuevaTPM, estadoActualElementos)
-                
-                # Calcular la diferencia
-                diferencia = g_Wi_union_vi - g_vi
-                
-                # Si la diferencia es mínima, actualizar mejor vi
-                if diferencia < mejor_valor:
-                    mejor_valor = diferencia
-                    mejor_vi = vi
         
-        # Agregar el mejor vi encontrado a W1
-        W1.append(mejor_vi)
 
-    # Aquí va la recursión:
-    # Si el tamaño de V es mayor que 2, reducir el conjunto V
-    if len(V) > 2:
-        # Encontrar los últimos dos elementos agregados a W1 (vn-1, vn)
-        vn_1 = W1[-2]
-        vn = W1[-1]
 
-        # Crear un nuevo "elemento" uniendo vn-1 y vn
-        u = (vn_1, vn)  # Puedes representar la unión de manera adecuada
-        
-        # Eliminar vn-1 y vn de V y agregar el nuevo elemento u
-        V = [v for v in V if v not in [vn_1, vn]]
-        V.append(u)
-        
-        # Llamar recursivamente a la función con el nuevo conjunto reducido
-        algoritmo(nuevaTPM, V, subconjuntoSistemaCandidato, estadoActualElementos)
-
-    # Final del proceso, cuando queden solo dos elementos en V
-    return W1  # Devuelve el conjunto construido
 
 # Ejecutar el algoritmo
-resultado = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
-print(resultado)
+# algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
