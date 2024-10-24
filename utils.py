@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import wasserstein_distance
 
 def generarMatrizPresenteInicial(n):
     # Generamos un array de números de 0 a 2^n - 1
@@ -18,3 +19,19 @@ def generarMatrizFuturoInicial(matriz):
 
 def elementosNoSistemaCandidato(estadoActualElementos, subconjuntoElementos):
     return [elemento for elemento in reversed(estadoActualElementos) if next(iter(elemento)) not in subconjuntoElementos]
+
+#* Función que calcula el producto tensorial entre n vectores
+def producto_tensorial_n(vectores: list[np.ndarray]) -> np.ndarray:
+    resultado = vectores[0]
+    for vector in vectores[1:]:
+        resultado = np.outer(resultado, vector).flatten()
+    
+    return resultado
+
+def producto_tensorial(a: np.ndarray ,b: np.ndarray):
+    return np.outer(a,b).flatten()
+
+#* Función para calcular la distancia EMD
+def calcularEMD(a: np.ndarray, b: np.ndarray):
+    emd_value = wasserstein_distance(a, b)
+    return emd_value

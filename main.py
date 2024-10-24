@@ -1,6 +1,9 @@
 from utils import generarMatrizPresenteInicial
 from utils import generarMatrizFuturoInicial
 from utils import elementosNoSistemaCandidato
+from utils import producto_tensorial_n
+from utils import producto_tensorial
+from utils import calcularEMD
 import numpy as np
 
 
@@ -369,33 +372,6 @@ for i in matricesTPM:
 
 
 # organizar()
-#? ------------------ INICIAR PROCESO PRINCIPAL ----------------------------
-'''
-- Proceso:
-Comenzar con un conjunto V de todos los elementos en t. Es decir, V tendrá los nodos del
-subsistema del conjunto candidato a analizar.
-a) Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V.
-b) Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
-• Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
-donde g(X) es la función EMD entre la distribución de probabilidades resultante de
-P( X) ⊗ P( X’) y la distribución del sistema sin dividir, asi: EMD(P(X) ⊗ P( X’), P(V) )
-• Establecer Wi = Wi-1 ∪ {vi}
-c) Construcción de Pares:
-• El par (vn-1, vn) forma un "par candidato".
-d) Recursión:
-• Si |V| > 2, repetir el proceso con V' = V \ {vn-1, vn} ∪ {u}, donde u representa la
-unión de vn-1 y vn.
-• Continuar hasta que |V| = 2.
-e) Evaluación Final:
-• Para cada par candidato (a, b) encontrado:
-o Evaluar la división que separa {b} del resto de nodos.
-• La división con el menor valor de diferencia es la solución al problema.
-'''
-
-import numpy as np
-from scipy.stats import wasserstein_distance
-
-# Función para calcular EMD con Hamming distance
 
 
 #* PARAMS
@@ -424,8 +400,6 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 #*PARAMS
 #*particion: lista de elementos que conforman la particion, lado izquierdo futuro, lado derecho presente, ejemplo: ([at+1, bt+1, ct+1], [at])
 
-print("------ Encontrar vector de probabilidades -----------")
-
 def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM):
     #* Inicializar el vector de probabilidades
     
@@ -434,6 +408,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     subDivisiones = [([elem], lista_anterior) for elem in lista_nueva]
 
     for subDivision in subDivisiones:
+        # print("subDivision", subDivision)
         contador = 0 #Para contar cuantas veces se repite cada estado
         #*Sacar cada elemento del lado izquierdo
         ladoIzquierdo = subDivision[0][0]
@@ -443,12 +418,12 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
         tpmVector = matricesTPM[ladoIzquierdo]
 
         #*Si la longitud del lado derecho de la subdivision es menor que la longitud del subconjunto de elementos, hay que marginalizar por filas
-        print('-----------', ladoIzquierdo ,'-----------')
+        # print('-----------', ladoIzquierdo ,'-----------')
         if len(subDivision[1]) < len(subconjuntoElementos):
 
             ordenColumnasPresente = subDivision[1]
-            print("Orden columnas presente")
-            print(ordenColumnasPresente)
+            # print("Orden columnas presente")
+            # print(ordenColumnasPresente)
         
             #*Marginalizar por filas
             #*Crear un arreglo de indices con la longitud del subconjunto de elementos, desde 0 hasta la longitud del subconjunto de elementos
@@ -468,7 +443,6 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
             #*Transponer la matriz para dejarla como estaba
             #matrizPresenteVector = matrizPresenteVector.T
-
 
             #* identificar los grupos que se repiten en columnas
             arreglo = [[] for i in range(len(matrizPresenteVector[0]))]
@@ -491,8 +465,6 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
             # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
             repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
 
-            #print("Repetidos")
-            #print(repetidos_con_indices)
 
             cantidad_repeticiones = {k: len(v) for k, v in subarreglos_repetidos.items() if len(v) > 1}
 
@@ -519,22 +491,15 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
                     tpmVector[menorIndice][k] = division
                     
                             
-
-        
             #* Transponer la matriz para eliminar las columnas con 77 y dejarla como estaba
             matrizPresenteVector = matrizPresenteVector.T
 
            
-
-            
-
              #* Eliminar las columnas con 77
             filas_a_eliminar = []
             for i in range(len(matrizPresenteVector)):
                 if 77 in matrizPresenteVector[i]:
                     filas_a_eliminar.append(i)
-
-       
 
             matrizPresenteVector = np.delete(matrizPresenteVector, filas_a_eliminar, axis=0)
 
@@ -558,14 +523,11 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
                     indiceVector = i
                     break
             
-            print("Indice vector")
-            print(indiceVector)
-
             #*Agregar ese vector a la lista de probabilidades
-            vectorProbabilidades.append(tpmVector[i])
+            vectorProbabilidades.append(tpmVector[indiceVector])
 
 
-            print(vectorProbabilidades)
+            # print(vectorProbabilidades)
 
             #*TODO: Aplicar cuando algundo de los vectores es {}(vacio)
 
@@ -576,14 +538,77 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
             #print(matrizPresenteVector)
             #print("Matriz futuro")
             #print(matrizFuturaVector)
-            #print("TPM")
-            #print(tpmVector)
+    
+    productoTensorialParticion = producto_tensorial_n(vectorProbabilidades)
+    return productoTensorialParticion
 
-            
+#* Método que me compara el vector resultante de la partición con el vector original de la TPM con la que estoy trabajando
+#* PARAMS
+#* resultadoParticion: Vector resultante de la partición
+#* nuevaMatrizPresente: Matriz presente
+#* nuevaTPM: Matriz de transición de probabilidad
+#* con la nuevvaMatrizPresente y la nuevaTPM se obtiene el vector de probabilidades original
+def compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM):
+    estadosActuales = []
+    ordenColumnasPresente = []
+    for i in subconjuntoElementos:
+        ordenColumnasPresente.append(i)
 
-encontrarVectorProbabilidades((['at+1', 'bt+1', 'ct+1'], ['at', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
+    # print(ordenColumnasPresente)
+
+    for i in estadoActualElementos:
+        if list(i.keys())[0] in ordenColumnasPresente:
+            estadosActuales.append(list(i.values())[0])
+    
+    indiceVector = -1
+    for i in range(len(nuevaMatrizPresente)):
+        if nuevaMatrizPresente[i].tolist() == estadosActuales:
+            indiceVector = i
+            break
 
 
+    vectorCompararTPM = nuevaTPM[indiceVector]
+
+    print("Vector particion", resultadoParticion)
+    print("Vector comparar TPM", vectorCompararTPM)
+
+    #* Comparar distribuciones usando la distancia EMD (Earth Mover's Distance)
+    valorEMD = calcularEMD(resultadoParticion, vectorCompararTPM)
+    print("Valor EMD", valorEMD)
+    return valorEMD
+
+#* Ejecución de la partición
+prodTensorialParticion1 = encontrarVectorProbabilidades((['at+1', 'bt+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
+prodTensorialParticion2 = encontrarVectorProbabilidades((['ct+1'], ['bt', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
+
+#* unir ambas particiones
+resultadoParticion = producto_tensorial(prodTensorialParticion1, prodTensorialParticion2)
+
+#* Ejecución de la comparación
+compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM)
+
+#? ------------------ INICIAR PROCESO PRINCIPAL ----------------------------
+'''
+- Proceso:
+Comenzar con un conjunto V de todos los elementos en t. Es decir, V tendrá los nodos del
+subsistema del conjunto candidato a analizar.
+a) Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V.
+b) Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
+• Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
+donde g(X) es la función EMD entre la distribución de probabilidades resultante de
+P( X) ⊗ P( X’) y la distribución del sistema sin dividir, asi: EMD(P(X) ⊗ P( X’), P(V) )
+• Establecer Wi = Wi-1 ∪ {vi}
+c) Construcción de Pares:
+• El par (vn-1, vn) forma un "par candidato".
+d) Recursión:
+• Si |V| > 2, repetir el proceso con V' = V \ {vn-1, vn} ∪ {u}, donde u representa la
+unión de vn-1 y vn.
+• Continuar hasta que |V| = 2.
+e) Evaluación Final:
+• Para cada par candidato (a, b) encontrado:
+o Evaluar la división que separa {b} del resto de nodos.
+• La división con el menor valor de diferencia es la solución al problema.
+'''
 
 
 # Ejecutar el algoritmo
