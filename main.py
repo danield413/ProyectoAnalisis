@@ -23,25 +23,25 @@ TPM = np.array([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1]
-])
+], dtype=float)
 
 #? El subconjunto del sistema candidato a analizar 
 #? (aquí deben darse los elementos tanto en t como en t+1, ya que no necesariamente se tendrán en t+1 los mismos elementos que en t)
 subconjuntoSistemaCandidato = np.array([
-    'at','bt','at+1', 'bt+1'
+    'at','bt', 'ct','at+1', 'bt+1', 'ct+1'
 ])
 
 #? El estado actual de todos los elementos del sistema
 estadoActualElementos = np.array([
-    {'at': 0},
+    {'at': 1},
     {'bt': 0},
-    {'ct': 1},
+    {'ct': 0},
     {'dt': 0}
 ])
 
 #? SISTEMA CANDIDATO
 #? El subconjunto de elementos a analizar (sistema candidato) aquí solo se requiere n los elementos en t
-subconjuntoElementos = np.array(['at', 'bt'])
+subconjuntoElementos = np.array(['at', 'bt', 'ct'])
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
@@ -420,6 +420,169 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
         vi = subconjuntoElementos[i]
         
         
+#*Metodo que reciba una particion del sistema y la divida en pequeñas subparticiones, y nos retorne el vector de probabilidades de cada subparticion
+#*PARAMS
+#*particion: lista de elementos que conforman la particion, lado izquierdo futuro, lado derecho presente, ejemplo: ([at+1, bt+1, ct+1], [at])
+
+print("------ Encontrar vector de probabilidades -----------")
+
+def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM):
+    #* Inicializar el vector de probabilidades
+    
+    vectorProbabilidades = []
+    lista_nueva, lista_anterior = particion
+    subDivisiones = [([elem], lista_anterior) for elem in lista_nueva]
+
+    for subDivision in subDivisiones:
+        contador = 0 #Para contar cuantas veces se repite cada estado
+        #*Sacar cada elemento del lado izquierdo
+        ladoIzquierdo = subDivision[0][0]
+        #* Elegir la matriz presente, futura correspondiente y tpm correspondiente
+        matrizPresenteVector = matricesPresentes
+        matrizFuturaVector = matricesFuturas[ladoIzquierdo]
+        tpmVector = matricesTPM[ladoIzquierdo]
+
+        #*Si la longitud del lado derecho de la subdivision es menor que la longitud del subconjunto de elementos, hay que marginalizar por filas
+        print('-----------', ladoIzquierdo ,'-----------')
+        if len(subDivision[1]) < len(subconjuntoElementos):
+
+            ordenColumnasPresente = subDivision[1]
+            print("Orden columnas presente")
+            print(ordenColumnasPresente)
+        
+            #*Marginalizar por filas
+            #*Crear un arreglo de indices con la longitud del subconjunto de elementos, desde 0 hasta la longitud del subconjunto de elementos
+            indicesIniciales = np.arange(len(subconjuntoElementos))
+
+            #*Crear un arreglo con los indices del lado derecho de la subdivision
+            indicesPresente = [indicesIniciales[i] for i in range(len(indicesIniciales)) if subconjuntoElementos[i] in subDivision[1]]
+            
+            #*Hacer la diferencia entre los indices iniciales y los indices presente
+            indicesMarginalizar = np.setdiff1d(indicesIniciales, indicesPresente)
+
+            #*Eliminar esos indices de la matriz presente
+            #*Transponemos la matriz para eliminar las filas con esos indices
+            matrizPresenteVector = matrizPresenteVector.T
+            #*Eliminar las columnas con esos indices
+            matrizPresenteVector = np.delete(matrizPresenteVector, indicesMarginalizar, axis=0)
+
+            #*Transponer la matriz para dejarla como estaba
+            #matrizPresenteVector = matrizPresenteVector.T
+
+
+            #* identificar los grupos que se repiten en columnas
+            arreglo = [[] for i in range(len(matrizPresenteVector[0]))]
+            for fila in matrizPresenteVector:
+                for idx, valor in enumerate(fila):
+                    arreglo[idx].append(valor)
+
+            
+            #* recorrer los grupos
+            subarreglos_repetidos = {}
+
+            # Iterar sobre el arreglo y buscar repetidos
+            for i, subarreglo in enumerate(arreglo):
+                subarreglo_tuple = tuple(subarreglo)  # Convertir el subarreglo a tupla (para ser hashable)
+                if subarreglo_tuple in subarreglos_repetidos:
+                    subarreglos_repetidos[subarreglo_tuple].append(i)
+                else:
+                    subarreglos_repetidos[subarreglo_tuple] = [i]
+
+            # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
+            repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
+
+            #print("Repetidos")
+            #print(repetidos_con_indices)
+
+            cantidad_repeticiones = {k: len(v) for k, v in subarreglos_repetidos.items() if len(v) > 1}
+
+            for subarreglo, indices in repetidos_con_indices.items():
+                menorIndice = min(indices)
+                #* recorre [0,1,16]
+                for i in indices:
+                    if i != menorIndice:
+                        for k in range(len(tpmVector[i])):
+                            tpmVector[menorIndice][k] += tpmVector[i][k]
+                            tpmVector[i][k] = 99
+
+                    #* i != 0
+                    if i != menorIndice:
+                        for k in matrizPresenteVector:
+                            k[i] = 77
+
+                #*Obtener el numero de columnas de la tpm
+                numero_columnas = len(tpmVector[0])
+
+                #*Recorrer el numero de columnas
+                for k in range(numero_columnas):
+                    division = tpmVector[menorIndice][k] / len(indices)
+                    tpmVector[menorIndice][k] = division
+                    
+                            
+
+        
+            #* Transponer la matriz para eliminar las columnas con 77 y dejarla como estaba
+            matrizPresenteVector = matrizPresenteVector.T
+
+           
+
+            
+
+             #* Eliminar las columnas con 77
+            filas_a_eliminar = []
+            for i in range(len(matrizPresenteVector)):
+                if 77 in matrizPresenteVector[i]:
+                    filas_a_eliminar.append(i)
+
+       
+
+            matrizPresenteVector = np.delete(matrizPresenteVector, filas_a_eliminar, axis=0)
+
+            #*Eliminar las columnas con 99
+            filas_a_eliminar = []
+            for i in range(len(tpmVector)):
+                if 99 in tpmVector[i]:
+                    filas_a_eliminar.append(i)
+
+            tpmVector = np.delete(tpmVector, filas_a_eliminar, axis=0)
+
+            estadosAcutales = []
+            for i in estadoActualElementos:
+                if list(i.keys())[0] in ordenColumnasPresente:
+                    estadosAcutales.append(list(i.values())[0])
+            
+            #*Recorrer la matriz presente
+            indiceVector = -1
+            for i in range(len(matrizPresenteVector)):
+                if matrizPresenteVector[i].tolist() == estadosAcutales:
+                    indiceVector = i
+                    break
+            
+            print("Indice vector")
+            print(indiceVector)
+
+            #*Agregar ese vector a la lista de probabilidades
+            vectorProbabilidades.append(tpmVector[i])
+
+
+            print(vectorProbabilidades)
+
+            #*TODO: Aplicar cuando algundo de los vectores es {}(vacio)
+
+                       
+
+
+            #print("Matriz presente")
+            #print(matrizPresenteVector)
+            #print("Matriz futuro")
+            #print(matrizFuturaVector)
+            #print("TPM")
+            #print(tpmVector)
+
+            
+
+encontrarVectorProbabilidades((['at+1', 'bt+1', 'ct+1'], ['at', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
+
 
 
 
