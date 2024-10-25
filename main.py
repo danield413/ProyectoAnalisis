@@ -607,51 +607,38 @@ o Evaluar la división que separa {b} del resto de nodos.
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
     
-    V = subconjuntoElementos #* sistema candidato
+    V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
 
-    #* Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
-    W0 = []
-    W1 = [ V[0] ] 
-    solucion = []
+    W = [ [], [V[0]] ] #* W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
+    
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
     for i in range(2, len(V)+1):
-        pass
-        #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
+    
+        #* inicializar la variable vi
+        vi = 0 #* La dejaremos en 0 para saber que no se ha encontrado un valor
 
-        #* Calcular g(Wi-1 ∪ {vi}) - g({vi})
-        # # vi = subconjuntoElementos[i-1]
-        # # nuevoConjunto = [W1[i-2], vi] #* wi-1 ∪ {vi}
-        # print(nuevoConjunto)
+        #* ahora recorremos para cada elemento en V que no esté en W[i-1] (el anterior)
+        for elem in V:
+            if elem not in W[i-1]: 
 
-        #* suposicion: si tengo por ejemplo en el nuevoConjunto [at, bt] entonces debo hacer la particion
-        #* de at bt con at+1 bt+1 ct+1, por ende me quedaria ([at+1, bt+1, ct+1], [at, bt])
-        #* como debo comparar el csistema ompleto debo hacer tambien la otra particion sobrante que seria ([ct], [])
+                #* OBTENER EMD(Wi-1 ∪ {vi}) 
+                #* aquí planteamos el conjunto que le vamos a pasar a la función de comparación
+                union = [ W[i-1], elem ]
+                #* separamos de la union los elementos que estan en t+1 y en t
+                particion = ( [ elem for elem in union if 't+1' in elem ], [ elem for elem in union if 't' in elem ] )
 
+                #* obtenemos el vector de probabilidades de la partición
+                vectorProbabilidades = encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM)
+                print("vectorProbabilidades", vectorProbabilidades)
+
+                #* Obtenemos el vector de probabilidades del conjunto que equilibra la particion
+                #* Obtener el equilibrio de la partición
+                #... seguir
+
+                
         
-        #* Calcular g(Wi-1 ∪ {vi})
-        
-        #* Calcular g({vi})
-        # print(nuevoConjunto)
 
-        #* g(Wi-1 ∪ {vi})
-        #* g({vi})
-        #* Calcular la diferencia
-        #* Agregar vi a Wi
-        #* Agregar la solución a la lista de soluciones
-        #* Continuar con el siguiente elemento
-
-    #* Construcción de Pares
-    #* El par (vn-1, vn) forma un "par candidato"
-    #* Recursión
-    #* Si |V| > 2, repetir el proceso con V' = V \ {vn-1, vn} ∪ {u}, donde u representa la unión de vn-1 y vn.
-    #* Continuar hasta que |V| = 2.
-    #* Evaluación Final
-    #* Para cada par candidato (a, b) encontrado:
-    #* Evaluar la división que separa {b} del resto de nodos.
-    #* La división con el menor valor de diferencia es la solución al problema.
-
-    return solucion
 
 algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
 
