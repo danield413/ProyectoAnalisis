@@ -616,17 +616,18 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
     for i in range(2, len(V)+1):
+        pass
         #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
 
         #* Calcular g(Wi-1 ∪ {vi}) - g({vi})
-        vi = subconjuntoElementos[i-1]
-        nuevoConjunto = [W1[i-2], vi] #* wi-1 ∪ {vi}
-        print(nuevoConjunto)
+        # # vi = subconjuntoElementos[i-1]
+        # # nuevoConjunto = [W1[i-2], vi] #* wi-1 ∪ {vi}
+        # print(nuevoConjunto)
 
         #* suposicion: si tengo por ejemplo en el nuevoConjunto [at, bt] entonces debo hacer la particion
         #* de at bt con at+1 bt+1 ct+1, por ende me quedaria ([at+1, bt+1, ct+1], [at, bt])
         #* como debo comparar el csistema ompleto debo hacer tambien la otra particion sobrante que seria ([ct], [])
-        
+
         
         #* Calcular g(Wi-1 ∪ {vi})
         
