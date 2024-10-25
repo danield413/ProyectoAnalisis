@@ -21,5 +21,5 @@ def calcularEMD(a: np.ndarray, b: np.ndarray):
     return emd_value
 
 #calcular emd
-emd = calcularEMD(producto, np.array([0,0,0,0,0,1,0,0]))
+emd = calcularEMD(producto, np.array([0,0,0,0,0,0,0,1]))
 print(emd)

@@ -407,6 +407,13 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     lista_nueva, lista_anterior = particion
     subDivisiones = [([elem], lista_anterior) for elem in lista_nueva]
 
+    #*verificar si alguna de las particiones está vacia
+    print(particion[0], particion[1])
+
+    #*TODO: PREGUNTAR SI SE RETORNA 1 O 0
+    if particion[0] == [] or particion[1] == []:
+        return 1 
+
     for subDivision in subDivisiones:
         # print("subDivision", subDivision)
         contador = 0 #Para contar cuantas veces se repite cada estado
@@ -526,19 +533,6 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
             #*Agregar ese vector a la lista de probabilidades
             vectorProbabilidades.append(tpmVector[indiceVector])
 
-
-            # print(vectorProbabilidades)
-
-            #*TODO: Aplicar cuando algundo de los vectores es {}(vacio)
-
-                       
-
-
-            #print("Matriz presente")
-            #print(matrizPresenteVector)
-            #print("Matriz futuro")
-            #print(matrizFuturaVector)
-    
     productoTensorialParticion = producto_tensorial_n(vectorProbabilidades)
     return productoTensorialParticion
 
@@ -578,8 +572,8 @@ def compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM):
     return valorEMD
 
 #* Ejecución de la partición
-prodTensorialParticion1 = encontrarVectorProbabilidades((['at+1', 'bt+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
-prodTensorialParticion2 = encontrarVectorProbabilidades((['ct+1'], ['bt', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
+prodTensorialParticion1 = encontrarVectorProbabilidades((['at+1','bt+1', 'ct+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
+prodTensorialParticion2 = encontrarVectorProbabilidades(([], ['bt', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
 
 #* unir ambas particiones
 resultadoParticion = producto_tensorial(prodTensorialParticion1, prodTensorialParticion2)
@@ -610,6 +604,55 @@ o Evaluar la división que separa {b} del resto de nodos.
 • La división con el menor valor de diferencia es la solución al problema.
 '''
 
+print("------ ALGORITMO -----------")
+def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
+    
+    V = subconjuntoElementos #* sistema candidato
+
+    #* Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
+    W0 = []
+    W1 = [ V[0] ] 
+    solucion = []
+
+    #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
+    for i in range(2, len(V)+1):
+        #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
+
+        #* Calcular g(Wi-1 ∪ {vi}) - g({vi})
+        vi = subconjuntoElementos[i-1]
+        nuevoConjunto = [W1[i-2], vi] #* wi-1 ∪ {vi}
+        print(nuevoConjunto)
+
+        #* suposicion: si tengo por ejemplo en el nuevoConjunto [at, bt] entonces debo hacer la particion
+        #* de at bt con at+1 bt+1 ct+1, por ende me quedaria ([at+1, bt+1, ct+1], [at, bt])
+        #* como debo comparar el csistema ompleto debo hacer tambien la otra particion sobrante que seria ([ct], [])
+        
+        
+        #* Calcular g(Wi-1 ∪ {vi})
+        
+        #* Calcular g({vi})
+        # print(nuevoConjunto)
+
+        #* g(Wi-1 ∪ {vi})
+        #* g({vi})
+        #* Calcular la diferencia
+        #* Agregar vi a Wi
+        #* Agregar la solución a la lista de soluciones
+        #* Continuar con el siguiente elemento
+
+    #* Construcción de Pares
+    #* El par (vn-1, vn) forma un "par candidato"
+    #* Recursión
+    #* Si |V| > 2, repetir el proceso con V' = V \ {vn-1, vn} ∪ {u}, donde u representa la unión de vn-1 y vn.
+    #* Continuar hasta que |V| = 2.
+    #* Evaluación Final
+    #* Para cada par candidato (a, b) encontrado:
+    #* Evaluar la división que separa {b} del resto de nodos.
+    #* La división con el menor valor de diferencia es la solución al problema.
+
+    return solucion
+
+algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
 
 # Ejecutar el algoritmo
 # algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
