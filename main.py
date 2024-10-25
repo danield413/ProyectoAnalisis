@@ -400,9 +400,10 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 #*PARAMS
 #*particion: lista de elementos que conforman la particion, lado izquierdo futuro, lado derecho presente, ejemplo: ([at+1, bt+1, ct+1], [at])
 
+
+
 def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM):
     #* Inicializar el vector de probabilidades
-    
     vectorProbabilidades = []
     lista_nueva, lista_anterior = particion
     subDivisiones = [([elem], lista_anterior) for elem in lista_nueva]
@@ -416,7 +417,6 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
     for subDivision in subDivisiones:
         # print("subDivision", subDivision)
-        contador = 0 #Para contar cuantas veces se repite cada estado
         #*Sacar cada elemento del lado izquierdo
         ladoIzquierdo = subDivision[0][0]
         #* Elegir la matriz presente, futura correspondiente y tpm correspondiente
@@ -536,6 +536,10 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     productoTensorialParticion = producto_tensorial_n(vectorProbabilidades)
     return productoTensorialParticion
 
+
+encontrarVectorProbabilidades((['at+1','bt+1', 'ct+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
+
+
 #* Método que me compara el vector resultante de la partición con el vector original de la TPM con la que estoy trabajando
 #* PARAMS
 #* resultadoParticion: Vector resultante de la partición
@@ -609,7 +613,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
     
     V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
 
-    W = [ [], [V[0]] ] #* W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
+    W = [ [], V[0] ] #* W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
     
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
@@ -620,22 +624,42 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
         #* ahora recorremos para cada elemento en V que no esté en W[i-1] (el anterior)
         for elem in V:
+
             if elem not in W[i-1]: 
+                elementoActual = elem
+                print("elementoActual", elementoActual)
 
                 #* OBTENER EMD(Wi-1 ∪ {vi}) 
                 #* aquí planteamos el conjunto que le vamos a pasar a la función de comparación
                 union = [ W[i-1], elem ]
+                print("union", union)
                 #* separamos de la union los elementos que estan en t+1 y en t
-                particion = ( [ elem for elem in union if 't+1' in elem ], [ elem for elem in union if 't' in elem ] )
+                particion = ( [ elem for elem in union if 't+1' in elem ], [ elem for elem in union if 't' in elem and 't+1' not in elem ] )
+                print("particion", particion)
 
                 #* obtenemos el vector de probabilidades de la partición
                 vectorProbabilidades = encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM)
                 print("vectorProbabilidades", vectorProbabilidades)
 
                 #* Obtenemos el vector de probabilidades del conjunto que equilibra la particion
-                #* Obtener el equilibrio de la partición
-                #... seguir
+                #* Obtener el equilibrio de la partición (lo que le falta a la partición para ser igual a la original)
+                particionEquilibrio = ([elem for elem in V if elem not in particion[0] and 't+1' in elem],[elem for elem in V if elem not in particion[1] and 't' in elem and 't+1' not in elem] )
+                print("particionEquilibrio", particionEquilibrio)
 
+                #*Obtenemos el vector de probabilidades de la partición de equilibrio
+                vectorProbabilidadesEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, matricesPresentes, matricesFuturas, matricesTPM)
+                print("vectorProbabilidadesEquilibrio", vectorProbabilidadesEquilibrio)
+
+                #*Obtenemos la particion solamente del elemento actual sin nada mas
+                particionElementoActual = ([elem for elem in V if elem == elementoActual and 't+1' in elem],[elem for elem in V if elem == elementoActual and 't' in elem and 't+1' not in elem] )
+                print("particionElementoActual", particionElementoActual)
+
+                #*Obtenemos la particion de equilibrio del elemento actual
+                particionEquilibrioElementoActual = ([elem for elem in V if elem != elementoActual and 't+1' in elem],[elem for elem in V if elem != elementoActual and 't' in elem and 't+1' not in elem] )
+                print("particionEquilibrioElementoActual", particionEquilibrioElementoActual)
+
+                print("-------------------------------------------------------------------------")
+                #... seguir
                 
         
 
