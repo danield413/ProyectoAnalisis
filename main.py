@@ -373,7 +373,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     #*verificar si alguna de las particiones está vacia
     # print("particion separada", particion[0], particion[1])
 
-    #*TODO: PREGUNTAR SI SE RETORNA 1 O 0
+    #*TODO: REALIZAR PROCESO CUANDO HAY VACIO EN t+1 o en t
     if particion[0] == [] or particion[1] == []:
         return 1 
 
