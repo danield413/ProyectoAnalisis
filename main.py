@@ -32,7 +32,7 @@ TPM = np.array([
 #? El subconjunto del sistema candidato a analizar 
 #? (aquí deben darse los elementos tanto en t como en t+1, ya que no necesariamente se tendrán en t+1 los mismos elementos que en t)
 subconjuntoSistemaCandidato = np.array([
-    'at','bt', 'ct','at+1', 'bt+1', 'ct+1'
+    'at','bt', 'ct','at+1','bt+1', 'ct+1'
 ])
 
 #? El estado actual de todos los elementos del sistema
@@ -263,8 +263,8 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
             indice = indicesElementosT[elementoT1[:-2]]
             #* borrar las filas de la matriz futuro excepto la fila indice
             copiaMatrizFuturo = np.delete(copiaMatrizFuturo, [i for i in range(len(copiaMatrizFuturo)) if i != indice], axis=0)
-            print("Matriz futuro")
-            print(copiaMatrizFuturo)
+            # print("Matriz futuro")
+            # print(copiaMatrizFuturo)
 
             #? proceso
             #* identificar los grupos que se repiten en columnas
@@ -603,11 +603,13 @@ partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepres
 #         print(j)
 
 particionesCandidatas = []
+listaDeU = []
 
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
 
     V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
+    print("V", V)
 
     #*crear un arreglo W de len(V) elementos
     W = []
@@ -616,14 +618,16 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
     W[0] = []
     W[1] = [ V[0] ]
-    menorValor = 0
-    menorElemento = ''
     print(W)
 
     restas = []
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
     for i in range(2, len(V)+1):
+        print()
+        print(">>>>>>>>>> LONGITUD V ACTUAL", (len(V)+1), "CONJUNTO: ", V)
+        if (len(V)+1) == 2:
+            break
     
         #* ahora recorremos para cada elemento en V que no esté en W[i-1] (el anterior)
         for elem in V:
@@ -634,7 +638,24 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 union = []
                 for elem in W[i-1]:
                     union.append(elem)
-                union.append(elementoActual)
+                if 'u' not in elementoActual:
+                    union.append(elementoActual)
+
+                #* si elemento es una u 
+                if 'u' in elementoActual:
+                    #* buscar los elementos que conforman la u
+                    for u in listaDeU:
+                        #* cojo el nombre de la llave
+                        nombre = list(u.keys())[0]
+                        if nombre == elementoActual:
+                            #* cojo el valor de la llave
+                            elementosU = u[nombre]
+                            #* recorro los elementos de la u
+                            for elem in elementosU:
+                                # print("ELEMENTO U", elem)
+                                union.append(elem)
+
+                # print("UNION", union)
                 
                 #* separamos de la union los elementos que estan en t+1 y en t
                 particion = ( [ elem for elem in union if 't+1' in elem ], [ elem for elem in union if 't' in elem and 't+1' not in elem ] )
@@ -655,7 +676,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 #* Obtenemos el vector de probabilidades del conjunto que equilibra la particion
                 #* Obtener el equilibrio de la partición (lo que le falta a la partición para ser igual a la original)
                 particionEquilibrio = ([elem for elem in V if elem not in particion[0] and 't+1' in elem],[elem for elem in V if elem not in particion[1] and 't' in elem and 't+1' not in elem] )
-                # print("particionEquilibrio", particionEquilibrio
+                print("particionEquilibrio", particionEquilibrio)
 
                 #? crear copias de las matrices para no modificar las originales
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -704,12 +725,16 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
                 restas.append((elementoActual, valorRestaFinal))
 
-        print("Restas", restas)
+        # print("DETERMINANDO EL MENOR")
+        # print("Restas", restas)
         #* Encontrar el menor valor de la resta
-        menorTupla = min(restas, key=lambda x: x[1])    
-        print("Menor tupla", menorTupla)  
-        valoresI = copy.deepcopy(W[i-1])
-        valoresI.append(menorTupla[0])
+
+        menorTupla = ()
+        if len(restas) > 0:
+            menorTupla = min(restas, key=lambda x: x[1])    
+            valoresI = copy.deepcopy(W[i-1])
+            valoresI.append(menorTupla[0])
+
         W[i] = valoresI
         print("W", W)
         restas = [] 
@@ -720,13 +745,13 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 continue
             #*agregar el elemento de la ultima posicion de x
             SecuenciaResultante.append(x[-1])
-        print("Secuencia resultante", SecuenciaResultante)
+        # print("Secuencia resultante", SecuenciaResultante)
 
         parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
-        print("Par candidato", parCandidato)
+        # print("Par candidato", parCandidato)
 
         ultimoElemento = SecuenciaResultante[-1]
-        print("Ultimo elemento", ultimoElemento)
+        # print("Ultimo elemento", ultimoElemento)
 
         p1 = None
         p2 = None
@@ -738,13 +763,265 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             p1 = ([],[ultimoElemento])
             p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
 
-        print("P1", p1)
-        print("P2", p2)
+        particionCandidata = {
+            'p1': p1,
+            'p2': p2
+        }
+
+        particionesCandidatas.append(particionCandidata)
         
+        #* se crea una nueva variable llamada u' que es la union de los dos elementos del par candidato
+        nuevoV = np.array([ elem for elem in V if elem not in parCandidato ])
+
+        uprima = [ parCandidato[0], parCandidato[1] ]
+
+        #*verifico si en uprima hay una u embebida
+        if 'u' in uprima[0]:
+            # print("HAY U EN U PRIMA[0]")
+            #*voy a la lista de u a buscar el nombre de la u
+            for u in listaDeU:
+                nombre = list(u.keys())[0]
+                if nombre == uprima[0]:
+                   for x in u[nombre]:
+                        uprima.append(x)
+        if 'u' in uprima[1]:
+            # print("HAY U EN U PRIMA[1]")
+            #*voy a la lista de u a buscar el nombre de la u
+            for u in listaDeU:
+                nombre = list(u.keys())[0]
+                if nombre == uprima[1]:
+                   for x in u[nombre]:
+                        uprima.append(x)
+            #* elimino la u de la lista de u
         
-            
+        for elementoU in listaDeU:
+            valor = list(elementoU.values())[0]
+            for x in range(len(valor) - 1, -1, -1):  # Itera en orden inverso
+                if 'u' in valor[x]:
+                    # print("VALOR", valor[x], "indice", x)
+                    valor.pop(x)  # Elimina el elemento sin afectar los índices restantes
+                    
+
+        
+
+
+        total = 0
+        for x in listaDeU:
+            nombre = list(x.keys())[0]
+            if 'u' in nombre:
+                total += 1
+        # print("total de anteriores u", total)
+
+        nombreU = 'u_prima' + str(total+1)
+        nuevoV = np.append(nuevoV, nombreU)
+        listaDeU.append({nombreU: uprima})
+        # print("Lista de U", listaDeU)
+
+        
+
+        #* LA 1ERA VEZ QUE OBTIENE LA SECUENCIA RESULTANTE SE CIERRA EL CICLO Y SE LLAMA A LA RECURSIÓN
+        if i == 2:
+            if((len(V)+1) > 2):
+                print("SE LLAMÓ LA RECURSIÓN")
+                algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
+                break
+
+
+           
+ 
 
 algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+
+print("lista de U")
+for i in listaDeU:
+    print(i)
+
+print("Particiones candidatas final")
+for i in particionesCandidatas:
+    print(i)
+
+def organizarParticionesCandidatasFinales(particionesCandidatasFinales):
+
+    nuevas = []
+
+    #* remocion de las u
+    for i in particionesCandidatasFinales:
+        # print("Particion candidata", i)
+        p1 = i['p1']
+        p2 = i['p2']
+
+        #* valores a reemplazar
+        for x in p1[0]:
+            if 'u_prima' in x:
+                valor = buscarValorUPrima(listaDeU, x)
+                print(x, valor)
+                p1[0].extend(valor)
+                p1[0].remove(x)
+
+        for x in p1[1]:
+            if 'u_prima' in x:
+                valor = buscarValorUPrima(listaDeU, x)
+                print(x, valor)
+                p1[1].extend(valor)
+                p1[1].remove(x)
+        
+        for x in p2[0]:
+            if 'u_prima' in x:
+                valor = buscarValorUPrima(listaDeU, x)
+                print(x, valor)
+                p2[0].extend(valor)
+                p2[0].remove(x)
+
+        for x in p2[1]:
+            if 'u_prima' in x:
+                valor = buscarValorUPrima(listaDeU, x)
+                print(x, valor)
+                p2[1].extend(valor)
+                p2[1].remove(x)
+
+        nuevas.append({
+            'p1': p1,
+            'p2': p2
+        })
+        
+    #* ahora, poner los elementos de t+1 en la primera posición de la partición y los de t en la segunda
+    for i in nuevas:
+        p1 = i['p1']
+        p2 = i['p2']
+
+        p1[0].sort()
+        p1[1].sort()
+        p2[0].sort()
+        p2[1].sort()
+
+
+    for i in nuevas:
+        print(i)
+
+    print("-------------------------------")
+
+    #* organizar t+1 en izquierda y t en derecha
+    for i in nuevas:
+        particion1 = i['p1']
+        particion2 = i['p2']
+
+        # Para particion1
+        elementos_a_mover = []
+
+        # Identificar elementos que contienen 't' en particion1[0]
+        for elem in particion1[0]:
+            if 't' in elem:
+                elementos_a_mover.append(elem)
+
+        # Mover los elementos de 'elementos_a_mover' a particion1[1] y eliminarlos de particion1[0]
+        for elem in elementos_a_mover:
+            particion1[0].remove(elem)
+            particion1[1].append(elem)
+
+        # Resetear elementos_a_mover
+        elementos_a_mover = []
+
+        # Identificar elementos que contienen 't+1' en particion1[1]
+        for elem in particion1[1]:
+            if 't+1' in elem:
+                elementos_a_mover.append(elem)
+
+        # Mover los elementos de 'elementos_a_mover' a particion1[0] y eliminarlos de particion1[1]
+        for elem in elementos_a_mover:
+            particion1[1].remove(elem)
+            particion1[0].append(elem)
+
+        # Repetir el mismo proceso para particion2
+
+        elementos_a_mover = []
+
+        # Identificar elementos que contienen 't' en particion2[0]
+        for elem in particion2[0]:
+            if 't' in elem:
+                elementos_a_mover.append(elem)
+
+        # Mover los elementos de 'elementos_a_mover' a particion2[1] y eliminarlos de particion2[0]
+        for elem in elementos_a_mover:
+            particion2[0].remove(elem)
+            particion2[1].append(elem)
+
+        # Resetear elementos_a_mover
+        elementos_a_mover = []
+
+        # Identificar elementos que contienen 't+1' en particion2[1]
+        for elem in particion2[1]:
+            if 't+1' in elem:
+                elementos_a_mover.append(elem)
+
+        # Mover los elementos de 'elementos_a_mover' a particion2[0] y eliminarlos de particion2[1]
+        for elem in elementos_a_mover:
+            particion2[1].remove(elem)
+            particion2[0].append(elem)
+
+    for i in nuevas:
+        print(i)
+
+    print("-------------------------------")
+
+    #* Ahora, equilibrar correctamente la partición 2
+
+    tuplasFinales = []
+
+    for i in nuevas:
+        particion1 = i['p1']
+        particion2 = i['p2']
+
+        #* Obtener el equilibrio de la partición 2
+        
+        elementosT1 = [elem for elem in subconjuntoElementos if 't+1' in elem]
+        #* ver que elemenos de t+1 están en la particion 1 izquierda
+        elementosT1_particion1 = [elem for elem in particion1[0] if 't+1' in elem and 't' not in elem]
+        #* Calculo la diferencia entre los elementos de t+1 y los elementos de t+1 en la particion 1
+        diferenciaT1 = [elem for elem in elementosT1 if elem not in elementosT1_particion1]
+        print("Diferencia t+1", diferenciaT1)
+
+        if diferenciaT1 != []:
+            print("es diferente de vacio")
+            # print("Particion 2[1]", particion2[1])
+            # Convertir la tupla en lista para hacer modificaciones
+            particion2 = list(particion2)
+            particion2[0] = diferenciaT1  # Realizar el cambio
+            particion2 = tuple(particion2)  # Convertir de nuevo en tupla si es necesario
+
+        elementosT = [elem for elem in subconjuntoElementos if 't' in elem]
+
+        #* ver que elemenos de t están en la particion 1 derecha
+        elementosT_particion1 = [elem for elem in particion1[1] if 't' in elem]
+        #* Calculo la diferencia entre los elementos de t y los elementos de t en la particion 1
+        diferenciaT = [elem for elem in elementosT if elem not in elementosT_particion1]
+        # print("Diferencia t", diferenciaT)
+
+        # Convertir la tupla en lista para hacer modificaciones
+        particion2 = list(particion2)
+        particion2[1] = diferenciaT  # Realizar el cambio
+        particion2 = tuple(particion2)  # Convertir de nuevo en tupla si es necesario
+
+        print("particion", (particion1, particion2))
+
+        tuplasFinales.append([particion1, particion2])
+
+    # for i in tuplasFinales:
+    #     p1 = i[0]
+    #     p2 = i[1]
+    #     print("Particion 1", p1, "Particion 2", p2)
+
+   
+
+
+def buscarValorUPrima(listaDeU, uprima):
+    for u in listaDeU:
+        nombre = list(u.keys())[0]
+        if nombre == uprima:
+            return u[nombre]
+
+print("------ ORGANIZAR LAS PARTICIONES FINALES -----------")
+particiones = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas))
+
 # copiaMatrizTPM =copy.deepcopy(partirMatricesTPM)
 # print("1.a                    ")
 # print("tpm", partirMatricesTPM)
