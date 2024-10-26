@@ -895,10 +895,10 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales):
         p2[1].sort()
 
 
-    for i in nuevas:
-        print(i)
+    # for i in nuevas:
+    #     print(i)
 
-    print("-------------------------------")
+    # print("-------------------------------")
 
     #* organizar t+1 en izquierda y t en derecha
     for i in nuevas:
@@ -958,10 +958,10 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales):
             particion2[1].remove(elem)
             particion2[0].append(elem)
 
-    for i in nuevas:
-        print(i)
+    # for i in nuevas:
+    #     print(i)
 
-    print("-------------------------------")
+    # print("-------------------------------")
 
     #* Ahora, equilibrar correctamente la partición 2
 
@@ -978,10 +978,10 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales):
         elementosT1_particion1 = [elem for elem in particion1[0] if 't+1' in elem and 't' not in elem]
         #* Calculo la diferencia entre los elementos de t+1 y los elementos de t+1 en la particion 1
         diferenciaT1 = [elem for elem in elementosT1 if elem not in elementosT1_particion1]
-        print("Diferencia t+1", diferenciaT1)
+        # print("Diferencia t+1", diferenciaT1)
 
         if diferenciaT1 != []:
-            print("es diferente de vacio")
+            # print("es diferente de vacio")
             # print("Particion 2[1]", particion2[1])
             # Convertir la tupla en lista para hacer modificaciones
             particion2 = list(particion2)
@@ -996,12 +996,13 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales):
         diferenciaT = [elem for elem in elementosT if elem not in elementosT_particion1]
         # print("Diferencia t", diferenciaT)
 
-        # Convertir la tupla en lista para hacer modificaciones
-        particion2 = list(particion2)
-        particion2[1] = diferenciaT  # Realizar el cambio
-        particion2 = tuple(particion2)  # Convertir de nuevo en tupla si es necesario
+        if diferenciaT != []:
+            # Convertir la tupla en lista para hacer modificaciones
+            particion2 = list(particion2)
+            particion2[1] = diferenciaT  # Realizar el cambio
+            particion2 = tuple(particion2)  # Convertir de nuevo en tupla si es necesario
 
-        print("particion", (particion1, particion2))
+        # print("particion", (particion1, particion2))
 
         tuplasFinales.append([particion1, particion2])
 
@@ -1009,9 +1010,8 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales):
     #     p1 = i[0]
     #     p2 = i[1]
     #     print("Particion 1", p1, "Particion 2", p2)
-
-   
-
+    
+    return tuplasFinales
 
 def buscarValorUPrima(listaDeU, uprima):
     for u in listaDeU:
@@ -1020,23 +1020,43 @@ def buscarValorUPrima(listaDeU, uprima):
             return u[nombre]
 
 print("------ ORGANIZAR LAS PARTICIONES FINALES -----------")
-particiones = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas))
+particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas))
 
-# copiaMatrizTPM =copy.deepcopy(partirMatricesTPM)
-# print("1.a                    ")
-# print("tpm", partirMatricesTPM)
-# x = encontrarVectorProbabilidades((['at+1'], ['at']), partirMatricesPresentes, partirMatricesFuturas, copiaMatrizTPM)
-# print(x)
+def evaluarParticionesFinales(particionesFinales):
 
-# copiaMatrizTPM = copy.deepcopy(partirMatricesTPM)
-# print("2.a                    ")
-# print("tpm", partirMatricesTPM)
-# x = encontrarVectorProbabilidades((['at+1'], ['at']), partirMatricesPresentes, partirMatricesFuturas, copiaMatrizTPM)
-# print(x)
+    particionMenorEMD = None
 
-# print("3.a                    ")
-# print("tpm", partirMatricesTPM)
+    for i in particionesFinales:
+        print("Particion final", i)
+        particion1 = i[0]
+        particion2 = i[1]
+
+        copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+        copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+        copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+
+        vectorp1 = encontrarVectorProbabilidades(particion1, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+        copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+        copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+        copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+
+        vectorp2 = encontrarVectorProbabilidades(particion2, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+
+        vectorResultado = producto_tensorial(vectorp1, vectorp2)
+
+        valorEMD = compararParticion(vectorResultado, nuevaMatrizPresente, nuevaTPM)
+        print("Valor EMD", valorEMD)
+
+        if particionMenorEMD == None:
+            particionMenorEMD = (i, valorEMD)
+        else:
+            if valorEMD < particionMenorEMD[1]:
+                particionMenorEMD = (i, valorEMD)
+
+    print("Particion con menor EMD", particionMenorEMD)
+        
 
 
-# v = encontrarVectorProbabilidades((['bt+1', 'ct+1'], ['at', 'bt']), partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM)
-# print(v)
+print("------ EVALUAR LAS PARTICIONES FINALES -----------")
+particionElegida = evaluarParticionesFinales(particionesFinales)
+print("Particion elegida", particionElegida)
