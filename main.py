@@ -5,6 +5,7 @@ from utils import producto_tensorial_n
 from utils import producto_tensorial
 from utils import calcularEMD
 import numpy as np
+import copy
 
 
 #? ----------------- ENTRADAS DE DATOS ---------------------------------
@@ -220,13 +221,13 @@ nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarMarginalizacion(nuevaM
 
 # print("------ MARGINALIZACIÓN -----------")
 
-print("Matriz presente")
-print(nuevaMatrizPresente)
-print("Matriz futuro")
-print(nuevaMatrizFuturo)
-print("TPM")
-print(nuevaTPM)
-print("-----------------")
+# print("Matriz presente")
+# print(nuevaMatrizPresente)
+# print("Matriz futuro")
+# print(nuevaMatrizFuturo)
+# print("TPM")
+# print(nuevaTPM)
+# print("-----------------")
 
 #? ------------------ INICIAR PROCESO DE COMPARACION ----------------------------
 
@@ -336,23 +337,6 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
     return matricesPresentes, matricesFuturas, matricesTPM
 
 
-#? Ejecución de la representación
-print("------ REPRESENTACIÓN -----------")
-matricesPresentes, matricesFuturas, matricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1)
-
-print("Matrices Presentes (para todos los t+1)")
-print(matricesPresentes)
-print("Matrices Futuras")
-for i in matricesFuturas:
-    print(i)
-    for j in matricesFuturas[i]:
-        print(j)
-print("Matrices TPM")
-for i in matricesTPM:
-    print(i)
-    for j in matricesTPM[i]:
-        print(j)
-
 # def organizar():
 #     elementosT = [elem for elem in subconjuntoSistemaCandidato if 't' in elem and 't+1' not in elem]
 #     print(elementosT)
@@ -373,171 +357,166 @@ for i in matricesTPM:
 
 # organizar()
 
-
-#* PARAMS
-#* nuevaTPM: Matriz de transición de probabilidad: [ [1,0,0, ... ], [0,1,0, ...], [0,0,1, ...], ... ]
-#* subconjuntoElementos: Subconjunto de elementos a analizar: ['at', 'bt', 'ct']
-#* subconjuntoSistemaCandidato: Subconjunto del sistema candidato a analizar: ['at','bt','ct','at+1', 'bt+1', 'ct+1']
-#* estadoActualElementos: Estado actual de todos los elementos del sistema: [{'at': 0}, {'bt': 0}, {'ct': 1}, {'dt': 0}]
-
-def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
-    
-    V = subconjuntoElementos
-    print(V)
-
-    #* Inicializar W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
-    W0 = []
-    W1 = [ V[0] ] 
-    solucion = []
-
-    #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
-    for i in range(2, len(V)+1):
-        #* Encontrar vi ∈ V \ Wi-1 que minimiza: g(Wi-1 ∪ {vi}) - g({vi})
-        vi = subconjuntoElementos[i]
-        
-        
-#*Metodo que reciba una particion del sistema y la divida en pequeñas subparticiones, y nos retorne el vector de probabilidades de cada subparticion
-#*PARAMS
-#*particion: lista de elementos que conforman la particion, lado izquierdo futuro, lado derecho presente, ejemplo: ([at+1, bt+1, ct+1], [at])
-
-
-
 def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM):
+    # print("SE LLAMO ENCONTRAR VECTOR PROBABILIDADES")
+    # print("particion que entra", particion)
+    # print("matrices presentes", matricesPresentes)
+    # print("matrices futuras", matricesFuturas)
+    # print("matrices tpm", matricesTPM)
     #* Inicializar el vector de probabilidades
+
+    
     vectorProbabilidades = []
     lista_nueva, lista_anterior = particion
     subDivisiones = [([elem], lista_anterior) for elem in lista_nueva]
 
     #*verificar si alguna de las particiones está vacia
-    print(particion[0], particion[1])
+    # print("particion separada", particion[0], particion[1])
 
     #*TODO: PREGUNTAR SI SE RETORNA 1 O 0
     if particion[0] == [] or particion[1] == []:
         return 1 
 
     for subDivision in subDivisiones:
+
+        # copiaMatricesPresentes = matricesPresentes.copy()
+        # copiaMatricesFuturas = matricesFuturas.copy()
+        # copiaMatricesTPM = matricesTPM.copy()
+
+
+
         # print("subDivision", subDivision)
         #*Sacar cada elemento del lado izquierdo
         ladoIzquierdo = subDivision[0][0]
-        #* Elegir la matriz presente, futura correspondiente y tpm correspondiente
+        # print(ladoIzquierdo)
+        # #* Elegir la matriz presente, futura correspondiente y tpm correspondiente
+        
+        # print("Copia matrices presentes", matricesPresentes)
+        
+        # print("Copia matrices futuras", matricesFuturas)
+
+        # print("Copia matrices tpm", matricesTPM)
+        # print()
+
         matrizPresenteVector = matricesPresentes
-        matrizFuturaVector = matricesFuturas[ladoIzquierdo]
+        # matrizFuturaVector = copiaMatricesFuturas[ladoIzquierdo]
         tpmVector = matricesTPM[ladoIzquierdo]
 
         #*Si la longitud del lado derecho de la subdivision es menor que la longitud del subconjunto de elementos, hay que marginalizar por filas
         # print('-----------', ladoIzquierdo ,'-----------')
-        if len(subDivision[1]) < len(subconjuntoElementos):
+        # if len(subDivision[1]) < len(subconjuntoElementos):
 
-            ordenColumnasPresente = subDivision[1]
-            # print("Orden columnas presente")
-            # print(ordenColumnasPresente)
+        ordenColumnasPresente = subDivision[1]
+        # print("Orden columnas presente")
+        # print(ordenColumnasPresente)
+    
+        #*Marginalizar por filas
+        #*Crear un arreglo de indices con la longitud del subconjunto de elementos, desde 0 hasta la longitud del subconjunto de elementos
+        indicesIniciales = np.arange(len(subconjuntoElementos))
+
+        #*Crear un arreglo con los indices del lado derecho de la subdivision
+        indicesPresente = [indicesIniciales[i] for i in range(len(indicesIniciales)) if subconjuntoElementos[i] in subDivision[1]]
         
-            #*Marginalizar por filas
-            #*Crear un arreglo de indices con la longitud del subconjunto de elementos, desde 0 hasta la longitud del subconjunto de elementos
-            indicesIniciales = np.arange(len(subconjuntoElementos))
+        #*Hacer la diferencia entre los indices iniciales y los indices presente
+        indicesMarginalizar = np.setdiff1d(indicesIniciales, indicesPresente)
 
-            #*Crear un arreglo con los indices del lado derecho de la subdivision
-            indicesPresente = [indicesIniciales[i] for i in range(len(indicesIniciales)) if subconjuntoElementos[i] in subDivision[1]]
+        #*Eliminar esos indices de la matriz presente
+        #*Transponemos la matriz para eliminar las filas con esos indices
+        matrizPresenteVector = matrizPresenteVector.T
+        #*Eliminar las columnas con esos indices
+        matrizPresenteVector = np.delete(matrizPresenteVector, indicesMarginalizar, axis=0)
+
+        #*Transponer la matriz para dejarla como estaba
+        #matrizPresenteVector = matrizPresenteVector.T
+
+        #* identificar los grupos que se repiten en columnas
+        arreglo = [[] for i in range(len(matrizPresenteVector[0]))]
+        for fila in matrizPresenteVector:
+            for idx, valor in enumerate(fila):
+                arreglo[idx].append(valor)
+
+        
+        #* recorrer los grupos
+        subarreglos_repetidos = {}
+
+        # Iterar sobre el arreglo y buscar repetidos
+        for i, subarreglo in enumerate(arreglo):
+            subarreglo_tuple = tuple(subarreglo)  # Convertir el subarreglo a tupla (para ser hashable)
+            if subarreglo_tuple in subarreglos_repetidos:
+                subarreglos_repetidos[subarreglo_tuple].append(i)
+            else:
+                subarreglos_repetidos[subarreglo_tuple] = [i]
+
+        # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
+        repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
+
+
+        cantidad_repeticiones = {k: len(v) for k, v in subarreglos_repetidos.items() if len(v) > 1}
+
+        for subarreglo, indices in repetidos_con_indices.items():
+            menorIndice = min(indices)
+            #* recorre [0,1,16]
+            for i in indices:
+                if i != menorIndice:
+                    for k in range(len(tpmVector[i])):
+                        tpmVector[menorIndice][k] += tpmVector[i][k]
+                        tpmVector[i][k] = 99
+
+                #* i != 0
+                if i != menorIndice:
+                    for k in matrizPresenteVector:
+                        k[i] = 77
+
+            #*Obtener el numero de columnas de la tpm
+            numero_columnas = len(tpmVector[0])
+
+            #*Recorrer el numero de columnas
+            for k in range(numero_columnas):
+                division = tpmVector[menorIndice][k] / len(indices)
+                tpmVector[menorIndice][k] = division
+                
+                        
+        #* Transponer la matriz para eliminar las columnas con 77 y dejarla como estaba
+        matrizPresenteVector = matrizPresenteVector.T
+
+        
+            #* Eliminar las columnas con 77
+        filas_a_eliminar = []
+        for i in range(len(matrizPresenteVector)):
+            if 77 in matrizPresenteVector[i]:
+                filas_a_eliminar.append(i)
+
+        matrizPresenteVector = np.delete(matrizPresenteVector, filas_a_eliminar, axis=0)
+
+        #*Eliminar las columnas con 99
+        filas_a_eliminar = []
+        for i in range(len(tpmVector)):
+            if 99 in tpmVector[i]:
+                filas_a_eliminar.append(i)
+
+        tpmVector = np.delete(tpmVector, filas_a_eliminar, axis=0)
+
+        estadosAcutales = []
+        for i in estadoActualElementos:
+            if list(i.keys())[0] in ordenColumnasPresente:
+                estadosAcutales.append(list(i.values())[0])
+        
+        #*Recorrer la matriz presente
+        indiceVector = -1
+        for i in range(len(matrizPresenteVector)):
+            if matrizPresenteVector[i].tolist() == estadosAcutales:
+                indiceVector = i
+                break
+
+        
+        #*Agregar ese vector a la lista de probabilidades
+        vectorProbabilidades.append(tpmVector[indiceVector])
+
             
-            #*Hacer la diferencia entre los indices iniciales y los indices presente
-            indicesMarginalizar = np.setdiff1d(indicesIniciales, indicesPresente)
-
-            #*Eliminar esos indices de la matriz presente
-            #*Transponemos la matriz para eliminar las filas con esos indices
-            matrizPresenteVector = matrizPresenteVector.T
-            #*Eliminar las columnas con esos indices
-            matrizPresenteVector = np.delete(matrizPresenteVector, indicesMarginalizar, axis=0)
-
-            #*Transponer la matriz para dejarla como estaba
-            #matrizPresenteVector = matrizPresenteVector.T
-
-            #* identificar los grupos que se repiten en columnas
-            arreglo = [[] for i in range(len(matrizPresenteVector[0]))]
-            for fila in matrizPresenteVector:
-                for idx, valor in enumerate(fila):
-                    arreglo[idx].append(valor)
-
-            
-            #* recorrer los grupos
-            subarreglos_repetidos = {}
-
-            # Iterar sobre el arreglo y buscar repetidos
-            for i, subarreglo in enumerate(arreglo):
-                subarreglo_tuple = tuple(subarreglo)  # Convertir el subarreglo a tupla (para ser hashable)
-                if subarreglo_tuple in subarreglos_repetidos:
-                    subarreglos_repetidos[subarreglo_tuple].append(i)
-                else:
-                    subarreglos_repetidos[subarreglo_tuple] = [i]
-
-            # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
-            repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
-
-
-            cantidad_repeticiones = {k: len(v) for k, v in subarreglos_repetidos.items() if len(v) > 1}
-
-            for subarreglo, indices in repetidos_con_indices.items():
-                menorIndice = min(indices)
-                #* recorre [0,1,16]
-                for i in indices:
-                    if i != menorIndice:
-                        for k in range(len(tpmVector[i])):
-                            tpmVector[menorIndice][k] += tpmVector[i][k]
-                            tpmVector[i][k] = 99
-
-                    #* i != 0
-                    if i != menorIndice:
-                        for k in matrizPresenteVector:
-                            k[i] = 77
-
-                #*Obtener el numero de columnas de la tpm
-                numero_columnas = len(tpmVector[0])
-
-                #*Recorrer el numero de columnas
-                for k in range(numero_columnas):
-                    division = tpmVector[menorIndice][k] / len(indices)
-                    tpmVector[menorIndice][k] = division
-                    
-                            
-            #* Transponer la matriz para eliminar las columnas con 77 y dejarla como estaba
-            matrizPresenteVector = matrizPresenteVector.T
-
-           
-             #* Eliminar las columnas con 77
-            filas_a_eliminar = []
-            for i in range(len(matrizPresenteVector)):
-                if 77 in matrizPresenteVector[i]:
-                    filas_a_eliminar.append(i)
-
-            matrizPresenteVector = np.delete(matrizPresenteVector, filas_a_eliminar, axis=0)
-
-            #*Eliminar las columnas con 99
-            filas_a_eliminar = []
-            for i in range(len(tpmVector)):
-                if 99 in tpmVector[i]:
-                    filas_a_eliminar.append(i)
-
-            tpmVector = np.delete(tpmVector, filas_a_eliminar, axis=0)
-
-            estadosAcutales = []
-            for i in estadoActualElementos:
-                if list(i.keys())[0] in ordenColumnasPresente:
-                    estadosAcutales.append(list(i.values())[0])
-            
-            #*Recorrer la matriz presente
-            indiceVector = -1
-            for i in range(len(matrizPresenteVector)):
-                if matrizPresenteVector[i].tolist() == estadosAcutales:
-                    indiceVector = i
-                    break
-            
-            #*Agregar ese vector a la lista de probabilidades
-            vectorProbabilidades.append(tpmVector[indiceVector])
-
+    # print("Vector probabilidades", vectorProbabilidades)
     productoTensorialParticion = producto_tensorial_n(vectorProbabilidades)
     return productoTensorialParticion
 
-
-encontrarVectorProbabilidades((['at+1','bt+1', 'ct+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
 
 
 #* Método que me compara el vector resultante de la partición con el vector original de la TPM con la que estoy trabajando
@@ -564,26 +543,24 @@ def compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM):
             indiceVector = i
             break
 
-
     vectorCompararTPM = nuevaTPM[indiceVector]
-
-    print("Vector particion", resultadoParticion)
-    print("Vector comparar TPM", vectorCompararTPM)
 
     #* Comparar distribuciones usando la distancia EMD (Earth Mover's Distance)
     valorEMD = calcularEMD(resultadoParticion, vectorCompararTPM)
-    print("Valor EMD", valorEMD)
     return valorEMD
 
 #* Ejecución de la partición
-prodTensorialParticion1 = encontrarVectorProbabilidades((['at+1','bt+1', 'ct+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
-prodTensorialParticion2 = encontrarVectorProbabilidades(([], ['bt', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
-
-#* unir ambas particiones
-resultadoParticion = producto_tensorial(prodTensorialParticion1, prodTensorialParticion2)
-
-#* Ejecución de la comparación
-compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM)
+# print("--------------- PRUEBA ----------------------")
+# prodTensorialParticion1 = encontrarVectorProbabilidades((['at+1'], ['at']), matricesPresentes, matricesFuturas, matricesTPM)
+# prodTensorialParticion2 = encontrarVectorProbabilidades((['bt+1','ct+1'], ['bt', 'ct']), matricesPresentes, matricesFuturas, matricesTPM)
+# print("Producto tensorial 1", prodTensorialParticion1)
+# print("Producto tensorial 2", prodTensorialParticion2)
+# #* unir ambas particiones
+# resultadoParticion = producto_tensorial(prodTensorialParticion1, prodTensorialParticion2)
+# print("Resultado particion", resultadoParticion)
+# print("-----------------------------------------------------")
+# #* Ejecución de la comparación
+# compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM)
 
 #? ------------------ INICIAR PROCESO PRINCIPAL ----------------------------
 '''
@@ -608,63 +585,181 @@ o Evaluar la división que separa {b} del resto de nodos.
 • La división con el menor valor de diferencia es la solución al problema.
 '''
 
+#? Ejecución de la representación
+print("------ REPRESENTACIÓN -----------")
+partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1)
+
+# print("Matrices Presentes (para todos los t+1)")
+# print(matricesPresentes)
+# print("Matrices Futuras")
+# for i in matricesFuturas:
+#     print(i)
+#     for j in matricesFuturas[i]:
+#         print(j)
+# print("Matrices TPM")
+# for i in matricesTPM:
+#     print(i)
+#     for j in matricesTPM[i]:
+#         print(j)
+
+particionesCandidatas = []
+
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
-    
+
     V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
 
-    W = [ [], V[0] ] #* W0 = ∅ y W1 = {v1}, donde v1 es un elemento arbitrario de V (primer elemento).
-    
+    #*crear un arreglo W de len(V) elementos
+    W = []
+    for i in range(len(V)+1):
+        W.append([])
+
+    W[0] = []
+    W[1] = [ V[0] ]
+    menorValor = 0
+    menorElemento = ''
+    print(W)
+
+    restas = []
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
     for i in range(2, len(V)+1):
     
-        #* inicializar la variable vi
-        vi = 0 #* La dejaremos en 0 para saber que no se ha encontrado un valor
-
         #* ahora recorremos para cada elemento en V que no esté en W[i-1] (el anterior)
         for elem in V:
-
-            if elem not in W[i-1]: 
+            if  elem not in W[i-1]: 
                 elementoActual = elem
-                print("elementoActual", elementoActual)
 
-                #* OBTENER EMD(Wi-1 ∪ {vi}) 
                 #* aquí planteamos el conjunto que le vamos a pasar a la función de comparación
-                union = [ W[i-1], elem ]
-                print("union", union)
+                union = []
+                for elem in W[i-1]:
+                    union.append(elem)
+                union.append(elementoActual)
+                
                 #* separamos de la union los elementos que estan en t+1 y en t
                 particion = ( [ elem for elem in union if 't+1' in elem ], [ elem for elem in union if 't' in elem and 't+1' not in elem ] )
-                print("particion", particion)
+                print("PARTICION", particion)
+
+                #! ------------------ g(Wi-1 ∪ {vi}) ----------------------------
+                
+                #? crear copias de las matrices para no modificar las originales
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
 
                 #* obtenemos el vector de probabilidades de la partición
-                vectorProbabilidades = encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM)
-                print("vectorProbabilidades", vectorProbabilidades)
+
+                vectorProbabilidades = encontrarVectorProbabilidades(particion, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+                # print("vectorProbabilidades", vectorProbabilidades)
 
                 #* Obtenemos el vector de probabilidades del conjunto que equilibra la particion
                 #* Obtener el equilibrio de la partición (lo que le falta a la partición para ser igual a la original)
                 particionEquilibrio = ([elem for elem in V if elem not in particion[0] and 't+1' in elem],[elem for elem in V if elem not in particion[1] and 't' in elem and 't+1' not in elem] )
-                print("particionEquilibrio", particionEquilibrio)
+                # print("particionEquilibrio", particionEquilibrio
+
+                #? crear copias de las matrices para no modificar las originales
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
 
                 #*Obtenemos el vector de probabilidades de la partición de equilibrio
-                vectorProbabilidadesEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, matricesPresentes, matricesFuturas, matricesTPM)
-                print("vectorProbabilidadesEquilibrio", vectorProbabilidadesEquilibrio)
+                vectorProbabilidadesEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+                # print("vectorProbabilidadesEquilibrio", vectorProbabilidadesEquilibrio)
+
+                #* Calcular la diferencia entre los dos vectores de probabilidades
+                vectorResultado = producto_tensorial(vectorProbabilidades, vectorProbabilidadesEquilibrio)
+                valorwi_gu = compararParticion(vectorResultado, nuevaMatrizPresente, nuevaTPM)
+                # print("VALOR EMD valorwi_gu", valorwi_gu)
+
+                #! ----------------------------- g({vi}) --------------------------------------
 
                 #*Obtenemos la particion solamente del elemento actual sin nada mas
-                particionElementoActual = ([elem for elem in V if elem == elementoActual and 't+1' in elem],[elem for elem in V if elem == elementoActual and 't' in elem and 't+1' not in elem] )
-                print("particionElementoActual", particionElementoActual)
+                particionElementoActual2 = ([elem for elem in V if elem == elementoActual and 't+1' in elem],[elem for elem in V if elem == elementoActual and 't' in elem and 't+1' not in elem] )
 
                 #*Obtenemos la particion de equilibrio del elemento actual
-                particionEquilibrioElementoActual = ([elem for elem in V if elem != elementoActual and 't+1' in elem],[elem for elem in V if elem != elementoActual and 't' in elem and 't+1' not in elem] )
-                print("particionEquilibrioElementoActual", particionEquilibrioElementoActual)
-
-                print("-------------------------------------------------------------------------")
-                #... seguir
+                particionEquilibrioElementoActual2 = ([elem for elem in V if elem != elementoActual and 't+1' in elem],[elem for elem in V if elem != elementoActual and 't' in elem and 't+1' not in elem] )
                 
-        
 
+                #? crear copias de las matrices para no modificar las originales
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+
+                vectorProbabilidades2 = encontrarVectorProbabilidades(particionElementoActual2, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+                # print("vectorProbabilidades2", vectorProbabilidades2)
+
+                #? crear copias de las matrices para no modificar las originales
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+
+                vectorProbabilidadesEquilibrioElementoActual2 = encontrarVectorProbabilidades(particionEquilibrioElementoActual2, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+                # print("vectorProbabilidadesEquilibrioElementoActual2", vectorProbabilidadesEquilibrioElementoActual2)
+
+                #* Calcular la diferencia entre los dos vectores de probabilidades
+                vectorResultadoElementoActual = producto_tensorial(vectorProbabilidades2, vectorProbabilidadesEquilibrioElementoActual2)
+
+                valorg_u = compararParticion(vectorResultadoElementoActual, nuevaMatrizPresente, nuevaTPM)
+                valorRestaFinal = valorwi_gu - valorg_u
+
+                restas.append((elementoActual, valorRestaFinal))
+
+        print("Restas", restas)
+        #* Encontrar el menor valor de la resta
+        menorTupla = min(restas, key=lambda x: x[1])    
+        print("Menor tupla", menorTupla)  
+        valoresI = copy.deepcopy(W[i-1])
+        valoresI.append(menorTupla[0])
+        W[i] = valoresI
+        print("W", W)
+        restas = [] 
+
+        SecuenciaResultante = []
+        for x in W:                                           
+            if x == []:
+                continue
+            #*agregar el elemento de la ultima posicion de x
+            SecuenciaResultante.append(x[-1])
+        print("Secuencia resultante", SecuenciaResultante)
+
+        parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
+        print("Par candidato", parCandidato)
+
+        ultimoElemento = SecuenciaResultante[-1]
+        print("Ultimo elemento", ultimoElemento)
+
+        p1 = None
+        p2 = None
+        #* si el ultimo elemento tiene t+1
+        if 't+1' in ultimoElemento:
+            p1 = ([ultimoElemento], [])
+            p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
+        else:
+            p1 = ([],[ultimoElemento])
+            p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
+
+        print("P1", p1)
+        print("P2", p2)
+        
+        
+            
 
 algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+# copiaMatrizTPM =copy.deepcopy(partirMatricesTPM)
+# print("1.a                    ")
+# print("tpm", partirMatricesTPM)
+# x = encontrarVectorProbabilidades((['at+1'], ['at']), partirMatricesPresentes, partirMatricesFuturas, copiaMatrizTPM)
+# print(x)
 
-# Ejecutar el algoritmo
-# algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+# copiaMatrizTPM = copy.deepcopy(partirMatricesTPM)
+# print("2.a                    ")
+# print("tpm", partirMatricesTPM)
+# x = encontrarVectorProbabilidades((['at+1'], ['at']), partirMatricesPresentes, partirMatricesFuturas, copiaMatrizTPM)
+# print(x)
+
+# print("3.a                    ")
+# print("tpm", partirMatricesTPM)
+
+
+# v = encontrarVectorProbabilidades((['bt+1', 'ct+1'], ['at', 'bt']), partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM)
+# print(v)
