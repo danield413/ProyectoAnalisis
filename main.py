@@ -503,9 +503,8 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
                 valores[i] = valores[i] / len(matrizTpm[0])
 
             print("Valores", valores)
-        
 
-        return sum(valores)
+        return 1
 
     #? CASO 3: cuando el futuro y el presente no son vacios
     for subDivision in subDivisiones:
@@ -1178,16 +1177,16 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
     return particionElegida
 
 
-# x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
-# print("resultado algoritmo", x)
+x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+print("resultado algoritmo", x)
 
 
-copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
-copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
-copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+# copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+# copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+# copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
 
 #* Cuando el futuro es vacío
 #* Para ({}, {at, ...})
-prodTensorialParticion1 = encontrarVectorProbabilidades((['ct+1'], []), copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
+# prodTensorialParticion1 = encontrarVectorProbabilidades((['ct+1'], []), copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM)
 
-print("resultado", prodTensorialParticion1)
+# print("resultado", prodTensorialParticion1)
