@@ -1,9 +1,9 @@
-from utils import generarMatrizPresenteInicial
-from utils import generarMatrizFuturoInicial
-from utils import elementosNoSistemaCandidato
-from utils import producto_tensorial_n
-from utils import producto_tensorial
-from utils import calcularEMD
+from utilidades.utils import generarMatrizPresenteInicial
+from utilidades.utils import generarMatrizFuturoInicial
+from utilidades.utils import elementosNoSistemaCandidato
+from utilidades.utils import producto_tensorial_n
+from utilidades.utils import producto_tensorial
+from utilidades.utils import calcularEMD
 import numpy as np
 import copy
 
