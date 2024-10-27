@@ -346,12 +346,11 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     #*verificar si alguna de las particiones está vacia
     # print("particion separada", particion[0], particion[1])
 
-    #*TODO: REALIZAR PROCESO CUANDO HAY VACIO EN t+1 o en t
     #? CASO 1: cuando el futuro es vacio
     #* Para estos casos es mas conveniente usar la matriz presente, la matriz futura y la tpm original sin partir
 
     if particion[1] == [] and particion[0] == []:
-        return 1
+        return 0
 
     if particion[0] == []:
         
@@ -367,7 +366,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
             #*Buscar el indice del elemento en la matriz presente
             indiceElementot = indicesElementosT[elementot]
-            print("Elemento t", elementot, "Indice", indicesElementosT)
+            # print("Elemento t", elementot, "Indice", indicesElementosT)
 
             #* la idea es marginalizar todas las columnas del presente que no sean el indice
             #*obtener las columnas que no son el indice
@@ -409,7 +408,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
             # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
             repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
-            print("Repetidos", repetidos_con_indices)
+            # print("Repetidos", repetidos_con_indices)
 
             for subarreglo, indices in repetidos_con_indices.items():
                 menorIndice = min(indices)
@@ -457,7 +456,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
             print(copiaNuevaMatrizFuturo)
             print(copiaNuevaTPM)
 
-            print("indiceselementost", indicesElementosT)
+            # print("indiceselementost", indicesElementosT)
             valores = []
             for i in estadoActualElementos:
                 if list(i.keys())[0] in elementosT:
@@ -477,7 +476,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     #? CASO 2: cuando el futuro es vacio
     if particion[1] == []:
         #* uso la matriz presente, la matriz futura y la tpm original partidas
-
+        valores = []
         elementosFuturo = particion[0]
 
         for elemento in elementosFuturo:
@@ -491,12 +490,11 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
             matrizFuturo = copiaMatricesFuturas[elemento]
             matrizTpm = copiaMatricesTPM[elemento]
 
-            print("Matriz presente", matrizPresente)
-            print("Matriz futuro", matrizFuturo)
-            print("Matriz tpm", matrizTpm)
+            # print("Matriz presente", matrizPresente)
+            # print("Matriz futuro", matrizFuturo)
+            # print("Matriz tpm", matrizTpm)
 
             #* sumar el valor de cada columna de la tpm
-            valores = []
             matrizTpm = matrizTpm.T
             for i in range(len(matrizTpm)):
                 suma = sum(matrizTpm[i])
@@ -506,9 +504,9 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
             for i in range(len(valores)):
                 valores[i] = valores[i] / len(matrizTpm[0])
 
-            print("Valores", valores)
+            # print("Valores", valores)
 
-        return 1
+        return sum(valores)
 
     #? CASO 3: cuando el futuro y el presente no son vacios
     for subDivision in subDivisiones:
