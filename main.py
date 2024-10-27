@@ -349,6 +349,10 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     #*TODO: REALIZAR PROCESO CUANDO HAY VACIO EN t+1 o en t
     #? CASO 1: cuando el futuro es vacio
     #* Para estos casos es mas conveniente usar la matriz presente, la matriz futura y la tpm original sin partir
+
+    if particion[1] == [] and particion[0] == []:
+        return 1
+
     if particion[0] == []:
         
         elementosPresente = particion[1] #* elementos en t
