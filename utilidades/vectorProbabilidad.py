@@ -14,136 +14,31 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
     #? CASO 1: cuando el futuro es vacio
     #* Para estos casos es mas conveniente usar la matriz presente, la matriz futura y la tpm original sin partir
 
-    if particion[1] == [] and particion[0] == []:
-        return 0
-
     if particion[0] == []:
         
         elementosPresente = particion[1] #* elementos en t
-
-        #*Recorro todos los elementos en t
-        for elementot in elementosPresente:
-
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaTPM = copy.deepcopy(nuevaTPM)
-            copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
-
-
-            #*Buscar el indice del elemento en la matriz presente
-            indiceElementot = indicesElementosT[elementot]
-            # print("Elemento t", elementot, "Indice", indicesElementosT)
-
-            #* la idea es marginalizar todas las columnas del presente que no sean el indice
-            #*obtener las columnas que no son el indice
-            columnasNoIndice = [i for i in range(len(copiaNuevaMatrizPresente[0])) if i != indiceElementot]
-            columnasNoIndice.sort(reverse=True) #* 2,1
-
-            for columna in columnasNoIndice:
-                #*Eliminar las columnas que no son el indice
-                #* Transponemos la matriz para eliminar las columnas con esos indices
-                copiaNuevaMatrizPresente = copiaNuevaMatrizPresente.T
-                #*Eliminar las columnas con esos indices
-                copiaNuevaMatrizPresente = np.delete(copiaNuevaMatrizPresente, columna, axis=0)
-                #*Transponer la matriz para dejarla como estaba
-                copiaNuevaMatrizPresente = copiaNuevaMatrizPresente.T
-
-            copiaNuevaMatrizPresente = copiaNuevaMatrizPresente.T
-            # print(copiaNuevaMatrizPresente)
-
-            #* identificar los grupos que se repiten en columnas
-            arreglo = [[] for i in range(len(copiaNuevaMatrizPresente[0]))]
-            # print(arreglo)
-
-            arreglo = [[] for i in range(len(copiaNuevaMatrizPresente[0]))]
-            for fila in copiaNuevaMatrizPresente:
-                for idx, valor in enumerate(fila):
-                    arreglo[idx].append(valor)
-
-            
-            #* recorrer los grupos
-            subarreglos_repetidos = {}
-
-            # Iterar sobre el arreglo y buscar repetidos
-            for i, subarreglo in enumerate(arreglo):
-                subarreglo_tuple = tuple(subarreglo)  # Convertir el subarreglo a tupla (para ser hashable)
-                if subarreglo_tuple in subarreglos_repetidos:
-                    subarreglos_repetidos[subarreglo_tuple].append(i)
-                else:
-                    subarreglos_repetidos[subarreglo_tuple] = [i]
-
-            # Filtrar solo los subarreglos que están repetidos (es decir, que tienen más de un índice)
-            repetidos_con_indices = {k: v for k, v in subarreglos_repetidos.items() if len(v) > 1}
-            # print("Repetidos", repetidos_con_indices)
-
-            for subarreglo, indices in repetidos_con_indices.items():
-                menorIndice = min(indices)
-                #* recorre [0,1,16]
-                for i in indices:
-                    if i != menorIndice:
-                        for k in range(len(copiaNuevaTPM[i])):
-                            copiaNuevaTPM[menorIndice][k] += copiaNuevaTPM[i][k]
-                            copiaNuevaTPM[i][k] = 99
-
-                    #* i != 0
-                    if i != menorIndice:
-                        for k in copiaNuevaMatrizPresente:
-                            k[i] = 77
-
-                #*Obtener el numero de columnas de la tpm
-                numero_columnas = len(copiaNuevaTPM[0])
-
-                #*Recorrer el numero de columnas
-                for k in range(numero_columnas):
-                    division = copiaNuevaTPM[menorIndice][k] / len(indices)
-                    copiaNuevaTPM[menorIndice][k] = division
-                
-                        
-            #* Transponer la matriz para eliminar las columnas con 77 y dejarla como estaba
-            copiaNuevaMatrizPresente = copiaNuevaMatrizPresente.T
-
-            #* Eliminar las columnas con 77
-            filas_a_eliminar = []
-            for i in range(len(copiaNuevaMatrizPresente)):
-                if 77 in copiaNuevaMatrizPresente[i]:
-                    filas_a_eliminar.append(i)
-
-            copiaNuevaMatrizPresente = np.delete(copiaNuevaMatrizPresente, filas_a_eliminar, axis=0)
-
-            #*Eliminar las columnas con 99
-            filas_a_eliminar = []
-            for i in range(len(copiaNuevaTPM)):
-                if 99 in copiaNuevaTPM[i]:
-                    filas_a_eliminar.append(i)
-
-            copiaNuevaTPM = np.delete(copiaNuevaTPM, filas_a_eliminar, axis=0)
+        valores = []
         
-            # print(copiaNuevaMatrizPresente)
-            # print(copiaNuevaMatrizFuturo)
-            # print(copiaNuevaTPM)
+        copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+        copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+        copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
 
-            # print("indiceselementost", indicesElementosT)
-            valores = []
-            for i in estadoActualElementos:
-                if list(i.keys())[0] in elementosT:
-                    valor = list(i.values())[0]
-                    valores.append(valor)
+        # #* la idea es marginalizar solo las columnas del presente que no están en la particion[1]
+        elementosAMarginalizar = [elem for elem in subconjuntoElementos if elem not in elementosPresente]
 
-            #*cortar valores a la cantidad de columnas de la matriz presente
-            valores = valores[:len(copiaNuevaMatrizPresente.T)]
-            valor = valores[0]
-            
-            sumaValoresTpm = sum(copiaNuevaTPM[valor])
-            
-            if sumaValoresTpm == 1:
-                return 0
-
+        if elementosAMarginalizar == []:
+            return [0]
+        
+        if elementosAMarginalizar != []:
+            return [0]
+        
 
     #? CASO 2: cuando el futuro es vacio
     if particion[1] == []:
         #* uso la matriz presente, la matriz futura y la tpm original partidas
         valores = []
         elementosFuturo = particion[0]
-
+        # print("Elementos futuro", elementosFuturo)
         for elemento in elementosFuturo:
             #* selecciono la matriz futura y tpm correspondiente
 
@@ -161,17 +56,19 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
             #* sumar el valor de cada columna de la tpm
             matrizTpm = matrizTpm.T
+            val = []
             for i in range(len(matrizTpm)):
                 suma = sum(matrizTpm[i])
-                valores.append(suma)
+                val.append(suma)
 
             # print(len(matrizTpm[0]))
-            for i in range(len(valores)):
-                valores[i] = valores[i] / len(matrizTpm[0])
+            for i in range(len(val)):
+                val[i] = val[i] / len(matrizTpm[0])
 
-            # print("Valores", valores)
+            valores.append(val)
 
-        return sum(valores)
+        x = producto_tensorial_n(valores)
+        return x
 
     #? CASO 3: cuando el futuro y el presente no son vacios
     for subDivision in subDivisiones:

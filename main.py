@@ -151,6 +151,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
                 #! ----------------------------- g({vi}) --------------------------------------
 
+                print("ELEMENTO ACTUAL", elementoActual)
                 #*Obtenemos la particion solamente del elemento actual sin nada mas
                 particionElementoActual2 = ([elem for elem in V if elem == elementoActual and 't+1' in elem],[elem for elem in V if elem == elementoActual and 't' in elem and 't+1' not in elem] )
 
@@ -182,10 +183,6 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
                 restas.append((elementoActual, valorRestaFinal))
 
-        # print("DETERMINANDO EL MENOR")
-        # print("Restas", restas)
-        #* Encontrar el menor valor de la resta
-
         menorTupla = ()
         if len(restas) > 0:
             menorTupla = min(restas, key=lambda x: x[1])
@@ -193,7 +190,6 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             valoresI.append(menorTupla[0])
 
         W[i] = valoresI
-        # print("W", W)
         restas = []
 
         SecuenciaResultante = []
@@ -202,13 +198,10 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 continue
             #*agregar el elemento de la ultima posicion de x
             SecuenciaResultante.append(x[-1])
-        # print("Secuencia resultante", SecuenciaResultante)
 
         parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
-        # print("Par candidato", parCandidato)
 
         ultimoElemento = SecuenciaResultante[-1]
-        # print("Ultimo elemento", ultimoElemento)
 
         p1 = None
         p2 = None
@@ -234,15 +227,12 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
         #*verifico si en uprima hay una u embebida
         if 'u' in uprima[0]:
-            # print("HAY U EN U PRIMA[0]")
-            #*voy a la lista de u a buscar el nombre de la u
             for u in listaDeU:
                 nombre = list(u.keys())[0]
                 if nombre == uprima[0]:
                    for x in u[nombre]:
                         uprima.append(x)
         if 'u' in uprima[1]:
-            # print("HAY U EN U PRIMA[1]")
             #*voy a la lista de u a buscar el nombre de la u
             for u in listaDeU:
                 nombre = list(u.keys())[0]
@@ -255,25 +245,17 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             valor = list(elementoU.values())[0]
             for x in range(len(valor) - 1, -1, -1):  # Itera en orden inverso
                 if 'u' in valor[x]:
-                    # print("VALOR", valor[x], "indice", x)
                     valor.pop(x)  # Elimina el elemento sin afectar los índices restantes
-
-
-
-
 
         total = 0
         for x in listaDeU:
             nombre = list(x.keys())[0]
             if 'u' in nombre:
                 total += 1
-        # print("total de anteriores u", total)
 
         nombreU = 'u_prima' + str(total+1)
         nuevoV = np.append(nuevoV, nombreU)
         listaDeU.append({nombreU: uprima})
-        # print("Lista de U", listaDeU)
-
 
 
         #* LA 1ERA VEZ QUE OBTIENE LA SECUENCIA RESULTANTE SE CIERRA EL CICLO Y SE LLAMA A LA RECURSIÓN
