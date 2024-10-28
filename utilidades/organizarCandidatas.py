@@ -3,10 +3,20 @@ def buscarValorUPrima(listaDeU, uprima):
     for u in listaDeU:
         nombre = list(u.keys())[0]
         if nombre == uprima:
-            return u[nombre]
+            # Llama recursivamente si algún valor contiene una 'u'
+            valor_resuelto = []
+            for elemento in u[nombre]:
+                if 'u' in elemento:
+                    # Obtener el valor sin 'u' embebidas recursivamente
+                    valor_resuelto.extend(buscarValorUPrima(listaDeU, elemento))
+                else:
+                    valor_resuelto.append(elemento)
+            return valor_resuelto
+    return []  # Devuelve una lista vacía si no se encuentra el uprima
 
+        
 def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU, subconjuntoElementos):
-
+    print("organizar")
     nuevas = []
 
     #* remocion de las u
@@ -19,21 +29,23 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
         for x in p1[0]:
             if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
-                # print(x, valor)
+                print(x, valor)
                 p1[0].extend(valor)
                 p1[0].remove(x)
 
         for x in p1[1]:
             if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
-                # print(x, valor)
+                print(x, valor)
                 p1[1].extend(valor)
+                uEmbebidas = [elem for elem in valor if 'u' in elem]
+                
+                
                 p1[1].remove(x)
 
         for x in p2[0]:
             if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
-                # print(x, valor)
                 p2[0].extend(valor)
                 p2[0].remove(x)
 
@@ -48,6 +60,11 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
             'p1': p1,
             'p2': p2
         })
+
+    # for i in nuevas:
+    #     p1 = i['p1']
+    #     p2 = i['p2']
+    #     print("Particion 1", p1, "Particion 2", p2)
 
     #* ahora, poner los elementos de t+1 en la primera posición de la partición y los de t en la segunda
     for i in nuevas:

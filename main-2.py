@@ -4,7 +4,7 @@ import numpy as np
 from utilidades.evaluarParticionesFinales import evaluarParticionesFinales
 from utilidades.background import aplicarCondicionesBackground
 from utilidades.marginalizacionInicial import aplicarMarginalizacion
-from utilidades.organizarCandidatas import organizarParticionesCandidatasFinales
+from utilidades.organizarCandidatas import buscarValorUPrima, organizarParticionesCandidatasFinales
 from utilidades.utils import generarMatrizPresenteInicial, obtenerParticion, obtenerParticionEquilibrio
 from utilidades.utils import generarMatrizFuturoInicial
 from utilidades.utils import elementosNoSistemaCandidato
@@ -163,11 +163,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             #! si hay una u debo ir a la lista de u' y tomar el valor correspondiente
             if 'u' in elemento:
 
-                valor = []
-                for elem in listaDeUPrimas:
-                    if elemento in elem:
-                        valor = elem[elemento]
-                        break
+                valor = buscarValorUPrima(listaDeUPrimas, elemento)
 
                 #* W[i-1] U {u}
                 wi_1Uelemento = W[i-1] + valor
@@ -313,7 +309,21 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
        
         print()
         print()
+
+    print()
+    print()
+    print("---------------------------------------------------")
+    print('Lista de U Primas')
+    for x in listaDeUPrimas:
+        print(x)
+    print("Candidatas")
+    for x in particionesCandidatas:
+        print(x)
     particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
+    for x in particionesFinales:
+        print("Particiones Finales", x)
+
+
     particionElegida = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
     for x in particionesFinales:
         print("Particiones Final", x)
