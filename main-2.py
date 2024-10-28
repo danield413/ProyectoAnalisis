@@ -60,7 +60,7 @@ partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepres
 
 
 particionesCandidatas = []
-listaDeU = []
+listaDeUPrimas = []
 
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
@@ -80,100 +80,253 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
     restas = []
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
-    for i in range(2, len(V)+1):
+    for i in range( 2, len(V) + 1 ):
+        print()
+        print(" - - - - - - - Iteración - - - - - - - - - ", i)
+
         #* se recorren los elementos V - W[i-1]
         elementosRecorrer = [elem for elem in V if elem not in W[i-1]]
-        
+
         for elemento in elementosRecorrer:
-            #* W[i-1] U {u}
-            wi_1Uelemento = W[i-1] + [elemento]
-            #* {u}
-            u = elemento
+            if 'u' not in elemento:
+                
+                #* W[i-1] U {u}
+                wi_1Uelemento = W[i-1] + [elemento]
+                #* {u}
+                u = elemento
+
+                #? Calcular  EMD(W[i-1] U {u})
+                # print("EMD(W[i-1] U {u})", wi_1Uelemento)
+                particionNormal = obtenerParticion(wi_1Uelemento)
+                # print("     - particionNormal", particionNormal)
+                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                # print("     - particionEquilibrio", particionEquilibrio)
+
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+
+                vectorNormal = encontrarVectorProbabilidades(particionNormal, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+
+                vectorEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)   
+
+
+                #* Calcular la diferencia entre los vectores
+                resultado = producto_tensorial(vectorNormal, vectorEquilibrio)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+                valorEMDParticionNormal = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
+                
+                #? Calcular EMD({u})
+                particionNormal = obtenerParticion([u])
+                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+
+                vectorNormal = encontrarVectorProbabilidades(particionNormal, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+
+                vectorEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+
+                #* Calcular la diferencia entre los vectores
+                resultado = producto_tensorial(vectorNormal, vectorEquilibrio)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+                valorEMDU = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
+
+                valorEMDFinal = valorEMDParticionNormal - valorEMDU
+                # print("          - valorEMDFinal", valorEMDFinal)
+
+                print("elemento", elemento, "valorEMDFinal", valorEMDFinal)
+                restas.append((elemento, valorEMDFinal))
+
+            #! paso importante: verificar la existencia de u
+            #! si hay una u debo ir a la lista de u' y tomar el valor correspondiente
+            if 'u' in elemento:
+
+                valor = []
+                for elem in listaDeUPrimas:
+                    if elemento in elem:
+                        valor = elem[elemento]
+                        break
+
+                #* W[i-1] U {u}
+                wi_1Uelemento = W[i-1] + valor
+                #* {u}
+                u = elemento
+
+                print("wi_1Uelemento", wi_1Uelemento)
+                print("u formula", u)
+
+                #? Calcular  EMD(W[i-1] U {u})
+                # print("EMD(W[i-1] U {u})", wi_1Uelemento)
+                particionNormal = obtenerParticion(wi_1Uelemento)
+                print("     - particionNormal", particionNormal)
+                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                print("     - particionEquilibrio", particionEquilibrio)
+
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+
+                vectorNormal = encontrarVectorProbabilidades(particionNormal, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+
+                vectorEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)   
+
+
+                #* Calcular la diferencia entre los vectores
+                resultado = producto_tensorial(vectorNormal, vectorEquilibrio)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+                valorEMDParticionNormal = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
+                
+                #? Calcular EMD({u})
+                particionNormal = obtenerParticion([u])
+                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+
+                vectorNormal = encontrarVectorProbabilidades(particionNormal, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+
+                copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
+                copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
+                copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+
+                vectorEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+
+                #* Calcular la diferencia entre los vectores
+                resultado = producto_tensorial(vectorNormal, vectorEquilibrio)
+                copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+                copiaNuevaTPM = copy.deepcopy(nuevaTPM)
+                valorEMDU = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
+
+                valorEMDFinal = valorEMDParticionNormal - valorEMDU
+                # print("          - valorEMDFinal", valorEMDFinal)
+
+                print("elemento", elemento, "valorEMDFinal", valorEMDFinal)
+                restas.append((elemento, valorEMDFinal))
+                
             
-            #? Calcular  EMD(W[i-1] U {u})
-            # print("EMD(W[i-1] U {u})", wi_1Uelemento)
-            particionNormal = obtenerParticion(wi_1Uelemento)
-            # print("     - particionNormal", particionNormal)
-            particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
-            # print("     - particionEquilibrio", particionEquilibrio)
-
-            copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
-            copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
-            copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
-            copiaNuevaTPM = copy.deepcopy(nuevaTPM)
-
-            vectorNormal = encontrarVectorProbabilidades(particionNormal, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
-
-            copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
-            copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
-            copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
-            copiaNuevaTPM = copy.deepcopy(nuevaTPM)
-
-            vectorEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)   
-
-            # print("     - vectorNormal", vectorNormal)
-            # print("     - vectorEquilibrio", vectorEquilibrio)
-
-            #* Calcular la diferencia entre los vectores
-            resultado = producto_tensorial(vectorNormal, vectorEquilibrio)
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaTPM = copy.deepcopy(nuevaTPM)
-            valorEMDParticionNormal = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
-            print("     - valorEMDParticionNormal", valorEMDParticionNormal)
             
+
+        #* Seleccionar el vi que minimiza EMD(W[i-1] U {vi})
+        menorTupla = ()
+        if len(restas) > 0:
+            menorTupla = min(restas, key=lambda x: x[1])
+            valoresI = copy.deepcopy(W[i-1])
+            valoresI.append(menorTupla[0])
+
+        # print(menorTupla)
+        W[i] = valoresI
+        restas = []
+
+        #*Sacar el par candidato
+        if i == len(V):
+            SecuenciaResultante = []
+            for x in W:
+                if x == []:
+                    continue
+                #*agregar el elemento de la ultima posicion de x
+                SecuenciaResultante.append(x[-1])
+
+
+            parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
+
+            ultimoElemento = SecuenciaResultante[-1]
+            p1 = None
+            p2 = None
+            #* si el ultimo elemento tiene t+1
+            if 't+1' in ultimoElemento:
+                p1 = ([ultimoElemento], [])
+                p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
+            else:
+                p1 = ([],[ultimoElemento])
+                p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
+
+            particionCandidata = {
+                'p1': p1,
+                'p2': p2
+            }
+
+            particionesCandidatas.append(particionCandidata)
+
+
+            print()
+            print("Par candidato", parCandidato)
+            ultimoElemento = SecuenciaResultante[-1]
+            elementosParticionNormal = [ultimoElemento]
+            print("Elementos Particion Normal", elementosParticionNormal)
             
-            #? Calcular EMD({u})
-            # print("EMD({u})", u)
-            particionNormal = obtenerParticion([u])
-            # print("     - particionNormal", particionNormal)
-            particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
-            # print("     - particionEquilibrio", particionEquilibrio)
-            
-            copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
-            copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
-            copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+            uActual = [SecuenciaResultante[-2], SecuenciaResultante[-1]]
+            print("uActual", uActual)
+            nombreU = ""
+            if(len(listaDeUPrimas) == 0):
+                nombreU = "u1"
+            else:
+                nombreU = "u" + str(len(listaDeUPrimas) + 1)
+            listaDeUPrimas.append({nombreU: uActual})
+            print("Lista de U'", listaDeUPrimas)
 
-            vectorNormal = encontrarVectorProbabilidades(particionNormal, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+            #* nuevoV = los elementos de V que no son el par candidato + nombre del uActual
+            nuevoV = []
+            nuevoV = [elem for elem in V if elem not in parCandidato]
+            nuevoV = nuevoV + [nombreU]
+            print("Nuevo V", nuevoV)
 
-            copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
-            copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
-            copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
-
-            vectorEquilibrio = encontrarVectorProbabilidades(particionEquilibrio, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos,indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
-
-            # print("     - vectorNormal", vectorNormal)
-            # print("     - vectorEquilibrio", vectorEquilibrio)
-
-            #* Calcular la diferencia entre los vectores
-            resultado = producto_tensorial(vectorNormal, vectorEquilibrio)
-            copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
-            copiaNuevaTPM = copy.deepcopy(nuevaTPM)
-            valorEMDU = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
-            print("     - valorEMDU", valorEMDU)
-
-            valorEMDFinal = valorEMDParticionNormal - valorEMDU
-            print("          - valorEMDFinal", valorEMDFinal)
-            
-        if i >= 2:
-            break
+            #* se procede con la recursión mandando el nuevoV
+            algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
+       
         print()
         print()
+    particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
+    particionElegida = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
+    return particionElegida
    
 
 
 x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
-# print("resultado algoritmo", x)
-
-
+print("Particion elegida", x)
 # copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
 # copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
 # copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
+# copiaNuevaMatrizPresente = copy.deepcopy(nuevaMatrizPresente)
+# copiaNuevaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+# copiaNuevaTPM = copy.deepcopy(nuevaTPM)
 
+# particionMenorEMD = evaluarParticionesFinales(particionesCandidatas, copiaMatricesPresentes, copiaMatricesFuturas, copiaMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, copiaNuevaMatrizPresente, copiaNuevaMatrizFuturo, copiaNuevaTPM, elementosT)
+# print("Particion con menor EMD", particionMenorEMD)
