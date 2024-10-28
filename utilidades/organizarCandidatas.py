@@ -17,28 +17,28 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
 
         #* valores a reemplazar
         for x in p1[0]:
-            if 'u_prima' in x:
+            if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
                 # print(x, valor)
                 p1[0].extend(valor)
                 p1[0].remove(x)
 
         for x in p1[1]:
-            if 'u_prima' in x:
+            if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
                 # print(x, valor)
                 p1[1].extend(valor)
                 p1[1].remove(x)
 
         for x in p2[0]:
-            if 'u_prima' in x:
+            if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
                 # print(x, valor)
                 p2[0].extend(valor)
                 p2[0].remove(x)
 
         for x in p2[1]:
-            if 'u_prima' in x:
+            if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
                 # print(x, valor)
                 p2[1].extend(valor)

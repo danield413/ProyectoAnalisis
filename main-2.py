@@ -315,6 +315,8 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
         print()
     particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
     particionElegida = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
+    for x in particionesFinales:
+        print("Particiones Final", x)
     return particionElegida
    
 
