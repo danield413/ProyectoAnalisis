@@ -27,13 +27,13 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
         elementosAMarginalizar = [elem for elem in subconjuntoElementos if elem not in elementosPresente]
 
         if elementosAMarginalizar == []:
-            return [0]
+            return [1]
         
         if elementosAMarginalizar != []:
-            return [0]
+            return [1]
         
 
-    #? CASO 2: cuando el futuro es vacio
+    #? CASO 2: cuando el presente es vacio
     if particion[1] == []:
         #* uso la matriz presente, la matriz futura y la tpm original partidas
         valores = []

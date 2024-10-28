@@ -322,6 +322,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
 
 x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+print()
 print("Particion elegida", x)
 # copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
 # copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
