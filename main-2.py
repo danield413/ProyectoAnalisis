@@ -12,7 +12,7 @@ from utilidades.utils import producto_tensorial
 from utilidades.partirRepresentacion import partirRepresentacion
 from utilidades.comparaciones import compararParticion
 from utilidades.vectorProbabilidad import encontrarVectorProbabilidades
-from data.cargarData import cargarData
+from data.cargarData import obtenerInformacionCSV
 
 #? ----------------- ENTRADAS DE DATOS ---------------------------------
 
@@ -20,30 +20,9 @@ from data.cargarData import cargarData
 # from data.matrices import subconjuntoSistemaCandidato
 # from data.matrices import subconjuntoElementos
 
-data = cargarData('csv/TPM1.csv')
-print(data)
-encabezados = data.columns
-estadosT1 = np.array([])
-for encabezado in encabezados:
-    if encabezado not in estadosT1 and 't+1' in encabezado:
-        estadosT1 = np.append(estadosT1, encabezado)
-print(estadosT1)
-
-estadosT = np.array([])
-for estado in estadosT1:
-    estadosT = np.append(estadosT, estado.replace('t+1', 't'))
-print(estadosT)
-
-TPM = data.to_numpy()
-print(TPM)
-
 #* Los estados actuales de los elementos toca darlos de forma manual
 from data.matrices import estadoActualElementos
-
-estados = np.append( estadosT, estadosT1 )
-subconjuntoSistemaCandidato = np.array( estados )
-
-subconjuntoElementos = np.array( estadosT )
+subconjuntoSistemaCandidato, subconjuntoElementos, TPM = obtenerInformacionCSV('csv/TPM1.csv')
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
@@ -307,7 +286,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             particionesCandidatas.append(particionCandidata)
 
 
-            print()
+            # print()
             # print("Par candidato", parCandidato)
             ultimoElemento = SecuenciaResultante[-1]
             elementosParticionNormal = [ultimoElemento]
@@ -332,18 +311,18 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             #* se procede con la recursión mandando el nuevoV
             algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
        
-        print()
-        print()
+        # print()
+        # print()
 
-    print()
-    print()
-    print("---------------------------------------------------")
+    # print()
+    # print()
+    # print("---------------------------------------------------")
     # print('Lista de U Primas')
-    for x in listaDeUPrimas:
-        print(x)
+    # for x in listaDeUPrimas:
+    #     print(x)
     # print("Candidatas")
-    for x in particionesCandidatas:
-        print(x)
+    # for x in particionesCandidatas:
+    #     print(x)
     particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
     # for x in particionesFinales:
     #     print("Particiones Finales", x)

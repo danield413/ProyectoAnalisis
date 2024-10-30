@@ -28,7 +28,7 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
         vectorResultado = producto_tensorial(vectorp1, vectorp2)
 
         valorEMD = compararParticion(vectorResultado, nuevaMatrizPresente, nuevaTPM, subconjuntoElementos, estadoActualElementos)
-        print("Valor EMD", valorEMD)
+        # print("Valor EMD", valorEMD)
 
         if particionMenorEMD == None:
             particionMenorEMD = (i, valorEMD)

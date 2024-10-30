@@ -16,7 +16,7 @@ def buscarValorUPrima(listaDeU, uprima):
 
         
 def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU, subconjuntoElementos):
-    print("organizar")
+    # print("organizar")
     nuevas = []
 
     #* remocion de las u
@@ -36,11 +36,7 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
         for x in p1[1]:
             if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
-                print(x, valor)
                 p1[1].extend(valor)
-                uEmbebidas = [elem for elem in valor if 'u' in elem]
-                
-                
                 p1[1].remove(x)
 
         for x in p2[0]:
@@ -52,7 +48,6 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
         for x in p2[1]:
             if 'u' in x:
                 valor = buscarValorUPrima(listaDeU, x)
-                # print(x, valor)
                 p2[1].extend(valor)
                 p2[1].remove(x)
 
