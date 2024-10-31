@@ -22,12 +22,11 @@ def obtenerInformacionCSV(ruta):
         estadosT = np.append(estadosT, estado.replace('t+1', 't'))
     # print(estadosT)
 
-    TPM = data.to_numpy()
+    TPM = np.array(data.to_numpy(), dtype=float)
     # print(TPM)
 
     estados = np.append( estadosT, estadosT1 )
     subconjuntoSistemaCandidato = np.array( estados )
 
     subconjuntoElementos = np.array( estadosT )
-
     return subconjuntoSistemaCandidato, subconjuntoElementos, TPM
