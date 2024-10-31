@@ -432,8 +432,8 @@ class InterfazCargarDatos:
         resultado_ventana.geometry("700x550")
          # Crear una tabla (Treeview) con dos columnas
         tabla = ttk.Treeview(resultado_ventana, columns=("col1", "col2"), show="headings", height=len(lista_datos))
-        tabla.heading("col1", text="Elemento")
-        tabla.heading("col2", text="Valor")
+        tabla.heading("col1", text="Partición")
+        tabla.heading("col2", text="Valor EMD")
 
         #Ajustamos el ancho de la primera columna
         tabla.column("col1", width=350)
