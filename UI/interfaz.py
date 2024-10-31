@@ -61,9 +61,6 @@ class InterfazCargarDatos:
         btn_resolver = tk.Button(self.root, text="Resolver", command=self.resolver, font=("Arial", 10), bg="#2196F3", fg="white")
         btn_resolver.pack(pady=10)
 
-        # Label para mostrar el valor calculado
-        self.result_label = tk.Label(self.root, text="Resultado: ", font=("Arial", 12), bg="#f2f2f2")
-        self.result_label.pack(pady=10)
 
     def crear_pestana(self, titulo):
         # Crear un frame para cada pestaña
@@ -558,6 +555,7 @@ class InterfazCargarDatos:
                 print(self.subconjuntoSistemaCandidato, self.subconjuntoElementos, self.TPM)
 
                 # Guardar los nombres válidos desde subconjuntoElementos
+                #TODO: NO SON LOS NOMBRES VALIDOS
                 self.nombres_validos = self.subconjuntoElementos.tolist()
 
                 # Mostrar resultados en cada cuadro de texto
