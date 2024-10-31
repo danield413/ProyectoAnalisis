@@ -409,23 +409,41 @@ class InterfazCargarDatos:
 
             particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeU, subconjuntoElementos)
             particionElegida = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
-            return particionElegida
+            return particionElegida, particionesFinales
 
 
-        x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+        x, y = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
         print("resultado algoritmo", x)
+        print('------------------')
+        for i in y :
+            print (i)
+        print('------------------')
 
         resultado_algoritmo = x  # Este sería el valor obtenido de un algoritmo
         self.actualizar_resultado(resultado_algoritmo)
         
         # Abrir una nueva ventana para mostrar el resultado
-        self.mostrar_resultado_ventana()
+        self.mostrar_resultado_ventana(y)
 
-    def mostrar_resultado_ventana(self):
+    def mostrar_resultado_ventana(self, lista_datos):
         # Crear una nueva ventana Toplevel
         resultado_ventana = tk.Toplevel(self.root)
         resultado_ventana.title("Resultado del Cálculo")
         resultado_ventana.geometry("700x550")
+         # Crear una tabla (Treeview) con dos columnas
+        tabla = ttk.Treeview(resultado_ventana, columns=("col1", "col2"), show="headings", height=len(lista_datos))
+        tabla.heading("col1", text="Elemento")
+        tabla.heading("col2", text="Valor")
+
+        #Ajustamos el ancho de la primera columna
+        tabla.column("col1", width=350)
+
+        # Insertar los datos en la tabla
+        for elemento in lista_datos:
+            tabla.insert("", "end", values=(elemento, ""))
+
+        tabla.pack(pady=10)
+
         tk.Label(resultado_ventana, text="La partición elegida, con la menor diferencia es:", font=("Arial", 12)).pack(pady=20)
         # Label para mostrar el resultado en la nueva ventana
         tk.Label(resultado_ventana, text=self.result_label.cget("text"), font=("Arial", 12)).pack(pady=20)
