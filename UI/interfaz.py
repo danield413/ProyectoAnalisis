@@ -406,32 +406,76 @@ class InterfazCargarDatos:
                         print("SE LLAMÓ LA RECURSIÓN")
                         algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
                         break
-
+                    
             particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeU, subconjuntoElementos)
-            particionElegida = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
-            return particionElegida, particionesFinales
+
+            resultado = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
+            # for x in particionesFinales:
+            #     print("Particiones Final", x)
+            return resultado
 
 
-        x, y = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
-        print("resultado algoritmo", x)
-        print('------------------')
-        for i in y :
-            print (i)
-        print('------------------')
+        resultado_algoritmo = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+        for i in resultado_algoritmo['particionesEMD']:
+            print(i)
+            
+        print("Particion con menor EMD", resultado_algoritmo['particionMenorEMD'])
 
-        resultado_algoritmo = x  # Este sería el valor obtenido de un algoritmo
-        self.actualizar_resultado(resultado_algoritmo)
+        # self.actualizar_resultado(resultado_algoritmo['particionMenorEMD'])
         
         # Abrir una nueva ventana para mostrar el resultado
-        self.mostrar_resultado_ventana(y)
+        self.mostrar_resultado_ventana(resultado_algoritmo['particionesEMD'], resultado_algoritmo['particionMenorEMD'])
 
-    def mostrar_resultado_ventana(self, lista_datos):
+    def mostrar_resultado_ventana(self, particionesEMD, particionMenorEMD):
+        
+        particionesEMDFormateadas = []
+        for x in particionesEMD:
+            particion = x[0]
+            string = "{ "
+            for i in particion[0][0]:
+                string += i + " "
+            string += " | "
+            for i in particion[0][1]:
+                string += i + " "
+            string += " } "
+            string += " - { "
+            for i in particion[1][0]:
+                string += i + ", "
+            string += " | "
+            for i in particion[1][1]:
+                string += i + " "
+            string += "} "
+            particionesEMDFormateadas.append((string, x[1]))
+            
+        particionMenorEMDFormateada = ""
+
+        valorEMD = particionMenorEMD[1]
+        print(particionMenorEMD[0][0])
+        print(particionMenorEMD[0][1])
+
+        stringResultado = "{ "
+        for i in particionMenorEMD[0][0][0]:
+            stringResultado += i + " "
+        stringResultado += " | "
+        for i in particionMenorEMD[0][0][1]:
+            stringResultado += i + " "
+        stringResultado += " } "
+        stringResultado += " - { "
+        for i in particionMenorEMD[0][1][0]:
+            stringResultado += i + " "
+        stringResultado += " | "
+        for i in particionMenorEMD[0][1][1]:
+            stringResultado += i + " "
+        stringResultado += "} "
+        
+        stringResultado += " con Valor EMD: " + str(valorEMD)
+        
         # Crear una nueva ventana Toplevel
         resultado_ventana = tk.Toplevel(self.root)
         resultado_ventana.title("Resultado del Cálculo")
         resultado_ventana.geometry("700x550")
          # Crear una tabla (Treeview) con dos columnas
-        tabla = ttk.Treeview(resultado_ventana, columns=("col1", "col2"), show="headings", height=len(lista_datos))
+        tabla = ttk.Treeview(resultado_ventana, columns=("col1", "col2"), show="headings", height=len(particionesEMDFormateadas))
         tabla.heading("col1", text="Partición")
         tabla.heading("col2", text="Valor EMD")
 
@@ -439,14 +483,15 @@ class InterfazCargarDatos:
         tabla.column("col1", width=350)
 
         # Insertar los datos en la tabla
-        for elemento in lista_datos:
-            tabla.insert("", "end", values=(elemento, ""))
+        for elemento in particionesEMDFormateadas:
+            tabla.insert("", "end", values=(elemento[0], elemento[1]))
 
         tabla.pack(pady=10)
 
-        tk.Label(resultado_ventana, text="La partición elegida, con la menor diferencia es:", font=("Arial", 12)).pack(pady=20)
+        tk.Label(resultado_ventana, text=f"La partición elegida, con la menor diferencia es", font=("Arial", 12)).pack(pady=20)
+        tk.Label(resultado_ventana, text=stringResultado, font=("Verdana", 12)).pack(pady=20)
         # Label para mostrar el resultado en la nueva ventana
-        tk.Label(resultado_ventana, text=self.result_label.cget("text"), font=("Arial", 12)).pack(pady=20)
+        # tk.Label(resultado_ventana, text=self.result_label.cget("text"), font=("Arial", 12)).pack(pady=20)
 
     def cargar_archivo(self):
         ruta = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])

@@ -16,7 +16,10 @@ def buscarValorUPrima(listaDeU, uprima):
 
         
 def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU, subconjuntoElementos):
-    # print("organizar")
+    
+    print("organizar")
+    print(subconjuntoElementos)
+    print()
     nuevas = []
 
     #* remocion de las u
@@ -135,8 +138,8 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
             particion2[1].remove(elem)
             particion2[0].append(elem)
 
-    # for i in nuevas:
-    #     print(i)
+    for i in nuevas:
+        print(i)
 
     # print("-------------------------------")
 
@@ -150,39 +153,30 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
 
         #* Obtener el equilibrio de la partición 2
 
-        elementosT1 = [elem for elem in subconjuntoElementos if 't+1' in elem]
-        #* ver que elemenos de t+1 están en la particion 1 izquierda
-        elementosT1_particion1 = [elem for elem in particion1[0] if 't+1' in elem and 't' not in elem]
-        #* Calculo la diferencia entre los elementos de t+1 y los elementos de t+1 en la particion 1
-        diferenciaT1 = [elem for elem in elementosT1 if elem not in elementosT1_particion1]
-        # print("Diferencia t+1", diferenciaT1)
+        elementos = subconjuntoElementos
+        for x in range(len(elementos)):
+            if elementos[x] == 't':
+                elementos[x] = 't+1'
+                
+        faltantesT1 = []
+        for i in elementos:
+            if i+'+1' not in particion1[0]:
+                faltantesT1.append(i+'+1')
+                
+        # print("Faltantes t+1", faltantesT1)
+        
+        faltantesT = []
+        for i in elementos:
+            if i not in particion1[1]:
+                faltantesT.append(i)
+        
+        # print("Faltantes t", faltantesT)
+        
+        p2 = (faltantesT1, faltantesT)
 
-        if diferenciaT1 != []:
-            # print("es diferente de vacio")
-            # print("Particion 2[1]", particion2[1])
-            # Convertir la tupla en lista para hacer modificaciones
-            particion2 = list(particion2)
-            particion2[0] = diferenciaT1  # Realizar el cambio
-            particion2 = tuple(particion2)  # Convertir de nuevo en tupla si es necesario
+        tuplasFinales.append([particion1, p2])
 
-        elementosT = [elem for elem in subconjuntoElementos if 't' in elem]
-
-        #* ver que elemenos de t están en la particion 1 derecha
-        elementosT_particion1 = [elem for elem in particion1[1] if 't' in elem]
-        #* Calculo la diferencia entre los elementos de t y los elementos de t en la particion 1
-        diferenciaT = [elem for elem in elementosT if elem not in elementosT_particion1]
-        # print("Diferencia t", diferenciaT)
-
-        if diferenciaT != []:
-            # Convertir la tupla en lista para hacer modificaciones
-            particion2 = list(particion2)
-            particion2[1] = diferenciaT  # Realizar el cambio
-            particion2 = tuple(particion2)  # Convertir de nuevo en tupla si es necesario
-
-        # print("particion", (particion1, particion2))
-
-        tuplasFinales.append([particion1, particion2])
-
+    # print("TUPLAS FINALES")
     # for i in tuplasFinales:
     #     p1 = i[0]
     #     p2 = i[1]

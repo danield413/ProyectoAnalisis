@@ -8,6 +8,8 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
     # print(particionesFinales)
 
     particionMenorEMD = None
+    
+    particionesEMD = []
 
     for i in particionesFinales:
         # print("Particion final", i)
@@ -28,6 +30,9 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
         vectorResultado = producto_tensorial(vectorp1, vectorp2)
 
         valorEMD = compararParticion(vectorResultado, nuevaMatrizPresente, nuevaTPM, subconjuntoElementos, estadoActualElementos)
+        
+        particionesEMD.append((i, valorEMD))
+        
         # print("Valor EMD", valorEMD)
 
         if particionMenorEMD == None:
@@ -37,4 +42,7 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
                 particionMenorEMD = (i, valorEMD)
 
     # print("Particion con menor EMD", particionMenorEMD)
-    return particionMenorEMD
+    return {
+        "particionesEMD": particionesEMD,
+        "particionMenorEMD": particionMenorEMD
+    }
