@@ -24,12 +24,12 @@ def elementosNoSistemaCandidato(estadoActualElementos, subconjuntoElementos):
 def producto_tensorial_n(vectores: list[np.ndarray]) -> np.ndarray:
     resultado = vectores[0]
     for vector in vectores[1:]:
-        resultado = np.outer(resultado, vector).flatten()
+        resultado = np.kron(resultado, vector).flatten()
     
     return resultado
 
 def producto_tensorial(a: np.ndarray ,b: np.ndarray):
-    return np.outer(a,b).flatten()
+    return np.kron(a,b).flatten()
 
 #* Función para calcular la distancia EMD
 def calcularEMD(a: np.ndarray, b: np.ndarray):

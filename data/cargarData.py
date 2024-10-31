@@ -8,7 +8,7 @@ def cargarData(ruta):
     return data
 
 def obtenerInformacionCSV(ruta):
-    data = cargarData('csv/TPM1.csv')
+    data = cargarData(ruta)
     # print(data)
     encabezados = data.columns
     estadosT1 = np.array([])

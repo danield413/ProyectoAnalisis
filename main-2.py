@@ -331,50 +331,9 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
     return resultado
    
 
-
 x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
 print()
-# for i in x['particionesEMD']:
-#     particion = i[0]
-#     string = "{ "
-#     for i in particion[0][0]:
-#         string += i + " "
-#     string += " | "
-#     for i in particion[0][1]:
-#         string += i + " "
-#     string += " } "
-#     string += " - { "
-#     for i in particion[1][0]:
-#         string += i + ", "
-#     string += " | "
-#     for i in particion[1][1]:
-#         string += i + " "
-#     string += "} "
-#     print(string, "Valor EMD", i[1])
 
-particionMenorEMD = x['particionMenorEMD']    
-particionMenorEMDFormateada = ""
-
-valorEMD = particionMenorEMD[1]
-print(particionMenorEMD[0][0])
-print(particionMenorEMD[0][1])
-
-stringResultado = "{ "
-for i in particionMenorEMD[0][0][0]:
-    stringResultado += i + " "
-stringResultado += " | "
-for i in particionMenorEMD[0][0][1]:
-    stringResultado += i + " "
-stringResultado += " } "
-stringResultado += " - { "
-for i in particionMenorEMD[0][1][0]:
-    stringResultado += i + " "
-stringResultado += " | "
-for i in particionMenorEMD[0][1][1]:
-    stringResultado += i + " "
-stringResultado += "} "
-
-print("Partición con menor EMD", stringResultado, "Valor EMD", valorEMD)
 
 
 
