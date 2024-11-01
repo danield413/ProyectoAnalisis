@@ -181,7 +181,7 @@ class InterfazCargarDatos:
 
         #? ----------------- APLICAR MARGINALIZACIÓN INICIAL ---------------------------------
 
-        nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente)
+        nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, nuevosIndicesElementos = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente)
 
 
         #?  ------------------------ DIVIDIR EN LA REPRESENTACION -----------------------------------
@@ -194,8 +194,7 @@ class InterfazCargarDatos:
         indicesElementosT = {list(elem.keys())[0]: idx for idx, elem in enumerate(estadoActualElementos) if list(elem.keys())[0] in elementosT}
 
         #? Ejecución de la representación
-        print("------ REPRESENTACIÓN -----------")
-        partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1, indicesElementosT)
+        partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT1, nuevosIndicesElementos)
 
 
         particionesCandidatas = []
