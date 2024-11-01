@@ -4,15 +4,12 @@ from utilidades.utils import producto_tensorial
 from utilidades.comparaciones import compararParticion
 
 def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT):
-    # print("evaluar particiones finales")
-    # print(particionesFinales)
 
     particionMenorEMD = None
     
     particionesEMD = []
 
     for i in particionesFinales:
-        # print("Particion final", i)
         particion1 = i[0]
         particion2 = i[1]
 
@@ -33,15 +30,12 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
         
         particionesEMD.append((i, valorEMD))
         
-        # print("Valor EMD", valorEMD)
-
         if particionMenorEMD == None:
             particionMenorEMD = (i, valorEMD)
         else:
             if valorEMD < particionMenorEMD[1]:
                 particionMenorEMD = (i, valorEMD)
 
-    # print("Particion con menor EMD", particionMenorEMD)
     return {
         "particionesEMD": particionesEMD,
         "particionMenorEMD": particionMenorEMD

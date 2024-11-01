@@ -41,15 +41,6 @@ def obtenerParticion(elementos):
     elementosT1 = [elem for elem in elementos if 't+1' in elem]
     return (elementosT1, elementosT)
 
-def obtenerParticionEquilibrio(elementos, subconjuntoSistemaCandidato):
-    #*elemento de t+1 que no estan en subconjuntoSistemaCandidato
-    elementosT1 = []
-    for elemento in subconjuntoSistemaCandidato:
-        if 't+1' in elemento and 't' not in elemento:
-            print("elemento", elemento)
-
-    # print("elementosT1", elementosT1)
-        
 def generarCombinacionesEstadosIniciales(n):
     #* generar un arreglo con todas las combinaciones para n elementos en binario
     combinaciones = []

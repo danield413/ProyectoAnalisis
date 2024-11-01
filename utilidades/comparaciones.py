@@ -14,8 +14,6 @@ def compararParticion(resultadoParticion, nuevaMatrizPresente, nuevaTPM, subconj
     for i in subconjuntoElementos:
         ordenColumnasPresente.append(i)
 
-    # print(ordenColumnasPresente)
-
     for i in estadoActualElementos:
         if list(i.keys())[0] in ordenColumnasPresente:
             estadosActuales.append(list(i.values())[0])

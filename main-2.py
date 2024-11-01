@@ -5,7 +5,7 @@ from utilidades.evaluarParticionesFinales import evaluarParticionesFinales
 from utilidades.background import aplicarCondicionesBackground
 from utilidades.marginalizacionInicial import aplicarMarginalizacion
 from utilidades.organizarCandidatas import buscarValorUPrima, organizarParticionesCandidatasFinales
-from utilidades.utils import generarMatrizPresenteInicial, obtenerParticion, obtenerParticionEquilibrio
+from utilidades.utils import generarMatrizPresenteInicial, obtenerParticion
 from utilidades.utils import generarMatrizFuturoInicial
 from utilidades.utils import elementosNoSistemaCandidato
 from utilidades.utils import producto_tensorial

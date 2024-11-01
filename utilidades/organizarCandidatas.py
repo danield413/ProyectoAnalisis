@@ -17,14 +17,10 @@ def buscarValorUPrima(listaDeU, uprima):
         
 def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU, subconjuntoElementos):
     
-    print("organizar")
-    print(subconjuntoElementos)
-    print()
     nuevas = []
 
     #* remocion de las u
     for i in particionesCandidatasFinales:
-        # print("Particion candidata", i)
         p1 = i['p1']
         p2 = i['p2']
 
@@ -59,11 +55,6 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
             'p2': p2
         })
 
-    # for i in nuevas:
-    #     p1 = i['p1']
-    #     p2 = i['p2']
-    #     print("Particion 1", p1, "Particion 2", p2)
-
     #* ahora, poner los elementos de t+1 en la primera posición de la partición y los de t en la segunda
     for i in nuevas:
         p1 = i['p1']
@@ -73,12 +64,6 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
         p1[1].sort()
         p2[0].sort()
         p2[1].sort()
-
-
-    # for i in nuevas:
-    #     print(i)
-
-    # print("-------------------------------")
 
     #* organizar t+1 en izquierda y t en derecha
     for i in nuevas:
@@ -138,11 +123,6 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
             particion2[1].remove(elem)
             particion2[0].append(elem)
 
-    for i in nuevas:
-        print(i)
-
-    # print("-------------------------------")
-
     #* Ahora, equilibrar correctamente la partición 2
 
     tuplasFinales = []
@@ -163,23 +143,13 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
             if i+'+1' not in particion1[0]:
                 faltantesT1.append(i+'+1')
                 
-        # print("Faltantes t+1", faltantesT1)
-        
         faltantesT = []
         for i in elementos:
             if i not in particion1[1]:
                 faltantesT.append(i)
         
-        # print("Faltantes t", faltantesT)
-        
         p2 = (faltantesT1, faltantesT)
 
         tuplasFinales.append([particion1, p2])
-
-    # print("TUPLAS FINALES")
-    # for i in tuplasFinales:
-    #     p1 = i[0]
-    #     p2 = i[1]
-    #     print("Particion 1", p1, "Particion 2", p2)
 
     return tuplasFinales
