@@ -2,6 +2,37 @@ import numpy as np
 
 def aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente):
 
+    indicesElementosEliminados = []
+
+    # print("ELEMENTOS DE BACKGROUND", elementosBackground)
+    
+    for elemento in elementosBackground:
+        llave = list(elemento.keys())[0]
+        # print("Elemento", llave)
+        for idx, elem in enumerate(estadoActualElementos):
+            if llave in elem:
+                indicesElementosEliminados.append({
+                    llave+'+1': idx
+                })
+                break
+        
+    # print("Indices de elementos eliminados en marginalizacion", indicesElementosEliminados)
+    
+    #*Ahora recorro todos los elementos en t
+    nuevosIndicesElementos = {}
+    counter = 0
+    for elemento in estadoActualElementos:
+        llave = list(elemento.keys())[0]
+        nombreElemento = llave+'+1'
+
+        #* Si el elemento no está en los elementos eliminados
+        #* el siguiente elemento tiene la posicion counter
+        if nombreElemento not in [list(elem.keys())[0] for elem in indicesElementosEliminados]:
+            nuevosIndicesElementos[nombreElemento] = counter
+            counter += 1
+        
+    # print("Nuevos indices de los elementos en la matriz futuro", nuevosIndicesElementos)    
+
     if len(elementosBackground) > 0:
 
         indicesCondicionesBackGround = {list(elem.keys())[0]: idx for idx, elem in enumerate(estadoActualElementos)}
@@ -91,4 +122,4 @@ def aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, est
 
 
 
-    return nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM
+    return nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, nuevosIndicesElementos

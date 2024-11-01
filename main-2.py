@@ -16,13 +16,13 @@ from data.cargarData import obtenerInformacionCSV
 
 #? ----------------- ENTRADAS DE DATOS ---------------------------------
 
-# from data.matrices import TPM
-# from data.matrices import subconjuntoSistemaCandidato
-# from data.matrices import subconjuntoElementos
+from data.matrices import TPM
+from data.matrices import subconjuntoSistemaCandidato
+from data.matrices import subconjuntoElementos
 
 #* Los estados actuales de los elementos toca darlos de forma manual
 from data.matrices import estadoActualElementos
-subconjuntoSistemaCandidato, subconjuntoElementos, TPM = obtenerInformacionCSV('csv/TPM1.csv')
+# subconjuntoSistemaCandidato, subconjuntoElementos, TPM = obtenerInformacionCSV('csv/TPM1.csv')
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
@@ -46,7 +46,7 @@ nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarCondicionesBackground(
 
 #? ----------------- APLICAR MARGINALIZACIÓN INICIAL ---------------------------------
 
-nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente)
+nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, nuevosIndicesElementos = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente)
 
 
 #?  ------------------------ DIVIDIR EN LA REPRESENTACION -----------------------------------
@@ -56,12 +56,15 @@ nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarMarginalizacion(nuevaM
 elementosT = [elem for elem in subconjuntoSistemaCandidato if 't' in elem and 't+1' not in elem]
 elementosT1 = [elem for elem in subconjuntoSistemaCandidato if 't+1' in elem]
 
+
 indicesElementosT = {list(elem.keys())[0]: idx for idx, elem in enumerate(estadoActualElementos) if list(elem.keys())[0] in elementosT}
+
+print("elementosT1", elementosT1)
+print("indicesElementosT viejos y nuevos", indicesElementosT,  nuevosIndicesElementos)
 
 #? Ejecución de la representación
 # print("------ REPRESENTACIÓN -----------")
-partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1, indicesElementosT)
-
+partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT1, nuevosIndicesElementos)
 
 particionesCandidatas = []
 listaDeUPrimas = []
@@ -333,7 +336,10 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
 x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
 print()
-
-
+print("RESULTADOS FINALES")
+for i in x["particionesEMD"]:
+    print(i[0], " con EMD ", i[1])
+    
+print("La mejor partición es ", x["particionMenorEMD"])
 
 

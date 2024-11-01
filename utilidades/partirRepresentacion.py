@@ -1,6 +1,7 @@
+import copy
 import numpy as np
 
-def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT, elementosT1, indicesElementosT):
+def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT1, indicesElementosT):
 
     #* Matrices resultantes del proceso de representacion
     matricesPresentes = nuevaMatrizPresente
@@ -8,23 +9,25 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
     matricesTPM = dict()
 
     elementosT1Revisados = np.array([])
-  
-
+    
     for elementoT1 in elementosT1:
+        # print("elementoT1", elementoT1)
 
-        copiaMatrizFuturo = np.copy(nuevaMatrizFuturo)
-        copiaTPM = np.copy(nuevaTPM)
+        copiaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
+        copiaTPM = copy.deepcopy(nuevaTPM)
 
         #* si el elemento futuro no se ha revisado
         if (elementoT1 not in elementosT1Revisados):
             elementosT1Revisados = np.append(elementosT1Revisados, elementoT1)
             
             #* buscar el indice del elemento (si es por ejm at+1, buscar at) en el estado actual
-            indice = indicesElementosT[elementoT1[:-2]]
+            indice = indicesElementosT[elementoT1[:-2]+'+1']
+            print("elemento", elementoT1, "indice:",indice)
             #* borrar las filas de la matriz futuro excepto la fila indice
+            
+            
             copiaMatrizFuturo = np.delete(copiaMatrizFuturo, [i for i in range(len(copiaMatrizFuturo)) if i != indice], axis=0)
-            # print("Matriz futuro")
-            # print(copiaMatrizFuturo)
+            
 
             #? proceso
             #* identificar los grupos que se repiten en columnas
