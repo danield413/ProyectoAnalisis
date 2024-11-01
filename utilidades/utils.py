@@ -50,3 +50,9 @@ def obtenerParticionEquilibrio(elementos, subconjuntoSistemaCandidato):
 
     # print("elementosT1", elementosT1)
         
+def generarCombinacionesEstadosIniciales(n):
+    #* generar un arreglo con todas las combinaciones para n elementos en binario
+    combinaciones = []
+    for i in range(2**n):
+        combinaciones.append(bin(i)[2:].zfill(n))
+    return combinaciones

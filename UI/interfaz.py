@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import numpy as np
@@ -556,7 +557,22 @@ class InterfazCargarDatos:
 
                 # Guardar los nombres válidos desde subconjuntoElementos
                 #TODO: NO SON LOS NOMBRES VALIDOS
-                self.nombres_validos = self.subconjuntoElementos.tolist()
+                #* obtener numero de filas de la matriz TPM original
+                numeroFilas = len(self.TPM)
+                cantidadElementosIniciales = math.log2(numeroFilas)
+                #*crear un arreglo de elementos validos
+                elementosValidos = np.arange(1, cantidadElementosIniciales + 1)
+                # print("elementosValidos", elementosValidos)
+                
+                abecedarioT = ['at', 'bt', 'ct', 'dt', 'et', 'ft', 'gt', 'ht', 'it', 'jt', 'kt', 'lt', 'mt', 'nt', 'ot', 'pt', 'qt', 'rt', 'st', 'tt', 'ut', 'vt', 'wt', 'xt', 'yt', 'zt']
+                
+                nombres_validos = []
+                for i in range(len(elementosValidos)):
+                    nombres_validos.append(abecedarioT[i])
+                    
+                # print("nombres_validos", nombres_validos)
+                
+                self.nombres_validos = nombres_validos
 
                 # Mostrar resultados en cada cuadro de texto
                 self.mostrar_resultado(self.text_subconjuntoSistemaCandidato, self.subconjuntoSistemaCandidato)
