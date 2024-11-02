@@ -5,7 +5,7 @@ from utilidades.evaluarParticionesFinales import evaluarParticionesFinales
 from utilidades.background import aplicarCondicionesBackground
 from utilidades.marginalizacionInicial import aplicarMarginalizacion
 from utilidades.organizarCandidatas import buscarValorUPrima, organizarParticionesCandidatasFinales
-from utilidades.utils import generarMatrizPresenteInicial, obtenerParticion
+from utilidades.utils import encontrarParticionEquilibrioComplemento, generarMatrizPresenteInicial, obtenerParticion
 from utilidades.utils import generarMatrizFuturoInicial
 from utilidades.utils import elementosNoSistemaCandidato
 from utilidades.utils import producto_tensorial
@@ -71,9 +71,7 @@ listaDeUPrimas = []
 
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
-
     V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
-    # print("V", V)
 
     #*crear un arreglo W de len(V) elementos
     W = []
@@ -82,14 +80,11 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
     W[0] = []
     W[1] = [ V[0] ]
-    # print(W)
 
     restas = []
 
     #* Iteración Principal: Para i = 2 hasta n (donde n es el número de nodos en V) se calcula :
     for i in range( 2, len(V) + 1 ):
-        # print()
-        # print(" - - - - - - - Iteración - - - - - - - - - ", i)
 
         #* se recorren los elementos V - W[i-1]
         elementosRecorrer = [elem for elem in V if elem not in W[i-1]]
@@ -101,14 +96,14 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 wi_1Uelemento = W[i-1] + [elemento]
                 #* {u}
                 u = elemento
+                
 
                 #? Calcular  EMD(W[i-1] U {u})
                 # print("EMD(W[i-1] U {u})", wi_1Uelemento)
                 particionNormal = obtenerParticion(wi_1Uelemento)
                 # print("     - particionNormal", particionNormal)
-                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
                 # print("     - particionEquilibrio", particionEquilibrio)
-
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
                 copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
                 copiaMatricesTPM = copy.deepcopy(partirMatricesTPM)
@@ -136,7 +131,9 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 
                 #? Calcular EMD({u})
                 particionNormal = obtenerParticion([u])
-                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                # print("     - particionNormal", particionNormal)
+                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                # print("     - particionEquilibrio", particionEquilibrio)
                 
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
                 copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
@@ -169,8 +166,8 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             #! paso importante: verificar la existencia de u
             #! si hay una u debo ir a la lista de u' y tomar el valor correspondiente
             if 'u' in elemento:
-
                 valor = buscarValorUPrima(listaDeUPrimas, elemento)
+                # print("ELEMENTO ES U", elemento, valor)
 
                 #* W[i-1] U {u}
                 wi_1Uelemento = W[i-1] + valor
@@ -184,7 +181,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 # print("EMD(W[i-1] U {u})", wi_1Uelemento)
                 particionNormal = obtenerParticion(wi_1Uelemento)
                 # print("     - particionNormal", particionNormal)
-                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
                 # print("     - particionEquilibrio", particionEquilibrio)
 
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -213,8 +210,10 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 valorEMDParticionNormal = compararParticion(resultado,copiaNuevaMatrizPresente, copiaNuevaTPM, subconjuntoElementos, estadoActualElementos)
                 
                 #? Calcular EMD({u})
-                particionNormal = obtenerParticion([u])
-                particionEquilibrio = ([elem for elem in V if elem not in particionNormal[0] and 't+1' in elem],[elem for elem in V if elem not in particionNormal[1] and 't' in elem and 't+1' not in elem] )
+                particionNormal = obtenerParticion(valor)
+                # print("     - particionNormal", particionNormal)
+                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                # print("     - particionEquilibrio", particionEquilibrio)
                 
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
                 copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
@@ -244,17 +243,13 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 # print("elemento", elemento, "valorEMDFinal", valorEMDFinal)
                 restas.append((elemento, valorEMDFinal))
                 
-            
-            
-
         #* Seleccionar el vi que minimiza EMD(W[i-1] U {vi})
         menorTupla = ()
         if len(restas) > 0:
             menorTupla = min(restas, key=lambda x: x[1])
             valoresI = copy.deepcopy(W[i-1])
             valoresI.append(menorTupla[0])
-
-        # print(menorTupla)
+            
         W[i] = valoresI
         restas = []
 
@@ -288,49 +283,27 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
             particionesCandidatas.append(particionCandidata)
 
-
-            # print()
-            # print("Par candidato", parCandidato)
             ultimoElemento = SecuenciaResultante[-1]
-            elementosParticionNormal = [ultimoElemento]
-            # print("Elementos Particion Normal", elementosParticionNormal)
             
             uActual = [SecuenciaResultante[-2], SecuenciaResultante[-1]]
-            # print("uActual", uActual)
             nombreU = ""
             if(len(listaDeUPrimas) == 0):
                 nombreU = "u1"
             else:
                 nombreU = "u" + str(len(listaDeUPrimas) + 1)
             listaDeUPrimas.append({nombreU: uActual})
-            # print("Lista de U'", listaDeUPrimas)
 
             #* nuevoV = los elementos de V que no son el par candidato + nombre del uActual
             nuevoV = []
             nuevoV = [elem for elem in V if elem not in parCandidato]
             nuevoV = nuevoV + [nombreU]
-            # print("Nuevo V", nuevoV)
 
             #* se procede con la recursión mandando el nuevoV
             algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
        
-        # print()
-        # print()
-
-    # print()
-    # print()
-    # print("---------------------------------------------------")
-    # print('Lista de U Primas')
-    # for x in listaDeUPrimas:
-    #     print(x)
-    # print("Candidatas")
-    # for x in particionesCandidatas:
-    #     print(x)
     particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
 
     resultado = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
-    # for x in particionesFinales:
-    #     print("Particiones Final", x)
     return resultado
    
 
@@ -341,5 +314,6 @@ for i in x["particionesEMD"]:
     print(i[0], " con EMD ", i[1])
     
 print("La mejor partición es ", x["particionMenorEMD"])
-
-
+# print("LISTA DE U PRIMAS")
+# for i in listaDeUPrimas:
+#     print(i)

@@ -47,3 +47,23 @@ def generarCombinacionesEstadosIniciales(n):
     for i in range(2**n):
         combinaciones.append(bin(i)[2:].zfill(n))
     return combinaciones
+
+def encontrarParticionEquilibrioComplemento(particion1, subconjuntoElementos):
+    elementos = subconjuntoElementos
+    for x in range(len(elementos)):
+        if elementos[x] == 't':
+            elementos[x] = 't+1'
+            
+    faltantesT1 = []
+    for i in elementos:
+        if i+'+1' not in particion1[0]:
+            faltantesT1.append(i+'+1')
+            
+    faltantesT = []
+    for i in elementos:
+        if i not in particion1[1]:
+            faltantesT.append(i)
+    
+    p2 = (faltantesT1, faltantesT)
+
+    return p2
