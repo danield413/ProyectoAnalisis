@@ -71,7 +71,7 @@ listaDeUPrimas = []
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
     V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
-
+    
     #*crear un arreglo W de len(V) elementos
     W = []
     for i in range(len(V)+1):
@@ -314,9 +314,10 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             nuevoV = []
             nuevoV = [elem for elem in V if elem not in parCandidato]
             nuevoV = nuevoV + [nombreU]
-
+    
             #* se procede con la recursión mandando el nuevoV
-            algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
+            if len(nuevoV) >= 2:
+                algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
        
     particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
 

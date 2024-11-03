@@ -60,11 +60,6 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
         p1 = i['p1']
         p2 = i['p2']
 
-        p1[0].sort()
-        p1[1].sort()
-        p2[0].sort()
-        p2[1].sort()
-
     #* organizar t+1 en izquierda y t en derecha
     for i in nuevas:
         particion1 = i['p1']

@@ -467,7 +467,8 @@ class InterfazCargarDatos:
                     nuevoV = nuevoV + [nombreU]
 
                     #* se procede con la recursión mandando el nuevoV
-                    algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
+                    if len(nuevoV) >= 2:
+                        algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
             
             particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
 
