@@ -12,7 +12,7 @@ from utilidades.evaluarParticionesFinales import evaluarParticionesFinales
 from utilidades.background import aplicarCondicionesBackground
 from utilidades.marginalizacionInicial import aplicarMarginalizacion
 from utilidades.organizarCandidatas import buscarValorUPrima, organizarParticionesCandidatasFinales
-from utilidades.utils import encontrarParticionEquilibrioComplemento, generarMatrizPresenteInicial, obtenerParticion
+from utilidades.utils import encontrarParticionEquilibrioComplemento, generarMatrizPresenteInicial, obtenerParticion, particionComplemento
 from utilidades.utils import generarMatrizFuturoInicial
 from utilidades.utils import elementosNoSistemaCandidato
 from utilidades.partirRepresentacion import partirRepresentacion
@@ -221,8 +221,8 @@ class InterfazCargarDatos:
 
         print("------ ALGORITMO -----------")
         def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
-            V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
-
+            V = subconjuntoSistemaCandidato 
+            # print("LO QUE LLEGA DE subconjuntosistemaCandidato", V)
             #*crear un arreglo W de len(V) elementos
             W = []
             for i in range(len(V)+1):
@@ -238,6 +238,7 @@ class InterfazCargarDatos:
 
                 #* se recorren los elementos V - W[i-1]
                 elementosRecorrer = [elem for elem in V if elem not in W[i-1]]
+                # print("elementosRecorrer", elementosRecorrer)
 
                 for elemento in elementosRecorrer:
                     if 'u' not in elemento:
@@ -250,8 +251,9 @@ class InterfazCargarDatos:
 
                         # Calcula EMD(W[i-1] U {u})
                         particionNormal = obtenerParticion(wi_1Uelemento)
-                        particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
-
+                        particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                        # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
+                        
                         # Copiar matrices una sola vez
                         copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
                         copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
@@ -284,7 +286,8 @@ class InterfazCargarDatos:
                         
                         # Calcular EMD({u})
                         particionNormal = obtenerParticion([u])
-                        particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                        particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                        # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
 
                         # Realizar copias de matrices una sola vez
                         copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -316,9 +319,6 @@ class InterfazCargarDatos:
 
 
                         valorEMDFinal = valorEMDParticionNormal - valorEMDU
-                        # print("          - valorEMDFinal", valorEMDFinal)
-
-                        # print("elemento", elemento, "valorEMDFinal", valorEMDFinal)
                         restas.append((elemento, valorEMDFinal))
 
                     #! paso importante: verificar la existencia de u
@@ -337,7 +337,8 @@ class InterfazCargarDatos:
 
                         # Calcular EMD(W[i-1] U {u})
                         particionNormal = obtenerParticion(wi_1Uelemento)
-                        particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                        particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                        # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
 
                         # Realizar copias de matrices una sola vez al inicio
                         copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -372,7 +373,8 @@ class InterfazCargarDatos:
                         
                         # Calcular EMD({u})
                         particionNormal = obtenerParticion(valor)
-                        particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                        particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                        # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
 
                         # Realizar copias de matrices una sola vez al inicio
                         copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -432,24 +434,38 @@ class InterfazCargarDatos:
 
 
                     parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
-
-                    ultimoElemento = SecuenciaResultante[-1]
-                    p1 = None
-                    p2 = None
-                    #* si el ultimo elemento tiene t+1
-                    if 't+1' in ultimoElemento:
-                        p1 = ([ultimoElemento], [])
-                        p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
+                    # print("######### parCandidato", parCandidato)
+                    ultimoElemento = parCandidato[-1]
+                    
+                    valorUltimoElemento = []
+                    if 'u' in ultimoElemento:
+                        # print("valor de u", ultimoElemento)
+                        valorUltimoElemento = buscarValorUPrima(listaDeUPrimas, ultimoElemento)
                     else:
-                        p1 = ([],[ultimoElemento])
-                        p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
-
-                    particionCandidata = {
-                        'p1': p1,
-                        'p2': p2
-                    }
-
-                    particionesCandidatas.append(particionCandidata)
+                        valorUltimoElemento = [ultimoElemento]
+                        
+                    # print("valorUltimoElemento", valorUltimoElemento)
+                    #*Crear la particion1 en base al valor del ultimo elemento, que puede tener en t y t+1
+                    pedazoFuturo = []
+                    pedazoPresente = []
+                    for i in valorUltimoElemento:
+                        if 't' in i and 't+1' not in i:
+                            if i not in pedazoPresente:
+                                pedazoPresente.append(i)
+                        else:
+                            if i not in pedazoFuturo:
+                                pedazoFuturo.append(i)
+                    
+                    particion1 = (pedazoFuturo, pedazoPresente)
+                    # print("particion1", particion1)
+                    
+                    particion2 = particionComplemento(particion1, subconjuntoSistemaCandidato)
+                    # print("particion2", particion2)
+                    
+                    particionesCandidatas.append({
+                        "p1": particion1,
+                        "p2": particion2
+                    })
 
                     ultimoElemento = SecuenciaResultante[-1]
                     
@@ -465,46 +481,50 @@ class InterfazCargarDatos:
                     nuevoV = []
                     nuevoV = [elem for elem in V if elem not in parCandidato]
                     nuevoV = nuevoV + [nombreU]
-
+            
                     #* se procede con la recursión mandando el nuevoV
                     if len(nuevoV) >= 2:
                         algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
             
-            particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
-
-            resultado = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
-            return resultado
+            return evaluarParticionesFinales(particionesCandidatas, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
 
 
 
         resultado_algoritmo = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
+        
+        
         for i in resultado_algoritmo['particionesEMD']:
             print(i)
             
         print("Particion con menor EMD", resultado_algoritmo['particionMenorEMD'])
-
-        # self.actualizar_resultado(resultado_algoritmo['particionMenorEMD'])
         
         # Abrir una nueva ventana para mostrar el resultado
         self.mostrar_resultado_ventana(resultado_algoritmo['particionesEMD'], resultado_algoritmo['particionMenorEMD'])
 
     def mostrar_resultado_ventana(self, particionesEMD, particionMenorEMD):
         
+        print("particioneEMD")
+        for x in particionesEMD:
+            print(x[0]["p1"])
+            print(x[0]["p2"])
+            
+        
+        
         particionesEMDFormateadas = []
         for x in particionesEMD:
             particion = x[0]
             string = "{ "
-            for i in particion[0][0]:
+            for i in particion["p1"][0]:
                 string += i + " "
             string += " | "
-            for i in particion[0][1]:
+            for i in particion["p1"][1]:
                 string += i + " "
             string += " } "
             string += " { "
-            for i in particion[1][0]:
+            for i in particion["p2"][0]:
                 string += i + ", "
             string += " | "
-            for i in particion[1][1]:
+            for i in particion["p2"][1]:
                 string += i + " "
             string += "} "
             particionesEMDFormateadas.append((string, x[1]))
@@ -512,21 +532,24 @@ class InterfazCargarDatos:
         particionMenorEMDFormateada = ""
 
         valorEMD = particionMenorEMD[1]
-        print(particionMenorEMD[0][0])
-        print(particionMenorEMD[0][1])
+        print("particionMenorEMD")
+        print(particionMenorEMD[0])
+        
+        p1 = particionMenorEMD[0]["p1"]
+        p2 = particionMenorEMD[0]["p2"]
 
         stringResultado = "{ "
-        for i in particionMenorEMD[0][0][0]:
+        for i in p1[0]:
             stringResultado += i + " "
         stringResultado += " | "
-        for i in particionMenorEMD[0][0][1]:
+        for i in p1[1]:
             stringResultado += i + " "
         stringResultado += " } "
         stringResultado += "{ "
-        for i in particionMenorEMD[0][1][0]:
+        for i in p2[0]:
             stringResultado += i + " "
         stringResultado += " | "
-        for i in particionMenorEMD[0][1][1]:
+        for i in p2[1]:
             stringResultado += i + " "
         stringResultado += "} "
         
