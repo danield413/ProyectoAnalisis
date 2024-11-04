@@ -2,15 +2,19 @@ import numpy as np
 from scipy.stats import wasserstein_distance
 
 def generarMatrizPresenteInicial(n):
-    # Generamos un array de números de 0 a 2^n - 1
-    combinaciones = np.arange(2 ** n)
+    print(n)
+    # Generar un array de números de 0 a 2^n - 1
+    combinaciones = np.arange(2 ** n, dtype=np.uint32)
     
-    # Convertimos cada número a su representación binaria con n bits y lo formateamos en una matriz
-    binario_array = np.array([list(format(num, f'0{n}b')) for num in combinaciones], dtype=int)
+    # Crear una matriz para almacenar los bits
+    binario_array = np.zeros((2 ** n, n), dtype=np.uint8)
+    
+    # Llenar la matriz bit a bit en formato little-endian
+    for bit_pos in range(n):
+        # Desplazar los números y obtener el bit en la posición correspondiente
+        binario_array[:, bit_pos] = (combinaciones >> bit_pos) & 1
     
     return binario_array
-
-import numpy as np
 
 def generarMatrizFuturoInicial(matriz):
     # Convertir la lista de listas a una matriz NumPy y luego transponerla

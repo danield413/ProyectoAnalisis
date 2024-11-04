@@ -21,13 +21,13 @@ from utilidades.vectorProbabilidad import encontrarVectorProbabilidades
 from data.matrices import subconjuntoSistemaCandidato
 from data.matrices import subconjuntoElementos
 from data.matrices import estadoActualElementos
-_, _, TPM = obtenerInformacionCSV('csv/red5.csv')
+_, _, TPM = obtenerInformacionCSV('csv/red10.csv')
 
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
-
 matrizPresente = generarMatrizPresenteInicial( len(estadoActualElementos) )
+print(len(matrizPresente))
 matrizFuturo = generarMatrizFuturoInicial(matrizPresente)
 
 # print("matrizPresente", matrizPresente[0])
