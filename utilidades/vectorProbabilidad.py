@@ -3,10 +3,12 @@ from utilidades.utils import producto_tensorial_n
 import numpy as np
 
 def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas, matricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT):
+    # print("******* ---- PARTICION:" , particion)
     
     vectorProbabilidades = []
     lista_nueva, lista_anterior = particion
     subDivisiones = [([elem], lista_anterior) for elem in lista_nueva]
+  
 
     #? CASO 1: cuando el futuro es vacio
     #* Para estos casos es mas conveniente usar la matriz presente, la matriz futura y la tpm original sin partir
@@ -54,18 +56,21 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
     #? CASO 3: cuando el futuro y el presente no son vacios
     for subDivision in subDivisiones:
-
+        # print("         ---- SUBDIVISION:" , subDivision)
         #*Sacar cada elemento del lado izquierdo
         ladoIzquierdo = subDivision[0][0]
 
         matrizPresenteVector = matricesPresentes
         tpmVector = matricesTPM[ladoIzquierdo]
+        
+        # print("LA TPM QUE SE USARA ES: ", tpmVector)
 
         #*Si la longitud del lado derecho de la subdivision es menor que la longitud del subconjunto de elementos, hay que marginalizar por filas
         # print('-----------', ladoIzquierdo ,'-----------')
         # if len(subDivision[1]) < len(subconjuntoElementos):
 
         ordenColumnasPresente = subDivision[1]
+        # print("ORDEN COLUMNAS PRESENTE: ", ordenColumnasPresente)
     
         #*Marginalizar por filas
         #*Crear un arreglo de indices con la longitud del subconjunto de elementos, desde 0 hasta la longitud del subconjunto de elementos
@@ -76,6 +81,7 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
         
         #*Hacer la diferencia entre los indices iniciales y los indices presente
         indicesMarginalizar = np.setdiff1d(indicesIniciales, indicesPresente)
+        
 
         #*Eliminar esos indices de la matriz presente
         #*Transponemos la matriz para eliminar las filas con esos indices
@@ -83,6 +89,8 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
         #*Eliminar las columnas con esos indices
         matrizPresenteVector = np.delete(matrizPresenteVector, indicesMarginalizar, axis=0)
 
+        # print("matrizPresenteVector", matrizPresenteVector)
+        
         #*Transponer la matriz para dejarla como estaba
 
         #* identificar los grupos que se repiten en columnas
@@ -151,5 +159,6 @@ def encontrarVectorProbabilidades(particion, matricesPresentes, matricesFuturas,
 
         vectorProbabilidades.append(tpmVector[indiceVector])
             
+   
     productoTensorialParticion = producto_tensorial_n(vectorProbabilidades)
     return productoTensorialParticion

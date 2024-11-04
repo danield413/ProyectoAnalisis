@@ -21,6 +21,13 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
             elementosT1Revisados = np.append(elementosT1Revisados, elementoT1)
             
             #* buscar el indice del elemento (si es por ejm at+1, buscar at) en el estado actual
+            tieneIndice = False
+            for elemento in indicesElementosT:
+                if elementoT1[:-2] in elemento:
+                    tieneIndice = True
+                    break
+            if not tieneIndice:
+                continue
             indice = indicesElementosT[elementoT1[:-2]+'+1']
             print("elemento", elementoT1, "indice:",indice)
             #* borrar las filas de la matriz futuro excepto la fila indice

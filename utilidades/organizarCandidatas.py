@@ -15,7 +15,7 @@ def buscarValorUPrima(listaDeU, uprima):
     return []  # Devuelve una lista vacía si no se encuentra el uprima
 
         
-def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU, subconjuntoElementos):
+def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU):
     
     nuevas = []
 
@@ -118,33 +118,5 @@ def organizarParticionesCandidatasFinales(particionesCandidatasFinales, listaDeU
             particion2[1].remove(elem)
             particion2[0].append(elem)
 
-    #* Ahora, equilibrar correctamente la partición 2
 
-    tuplasFinales = []
-
-    for i in nuevas:
-        particion1 = i['p1']
-        particion2 = i['p2']
-
-        #* Obtener el equilibrio de la partición 2
-
-        elementos = subconjuntoElementos
-        for x in range(len(elementos)):
-            if elementos[x] == 't':
-                elementos[x] = 't+1'
-                
-        faltantesT1 = []
-        for i in elementos:
-            if i+'+1' not in particion1[0]:
-                faltantesT1.append(i+'+1')
-                
-        faltantesT = []
-        for i in elementos:
-            if i not in particion1[1]:
-                faltantesT.append(i)
-        
-        p2 = (faltantesT1, faltantesT)
-
-        tuplasFinales.append([particion1, p2])
-
-    return tuplasFinales
+    return nuevas

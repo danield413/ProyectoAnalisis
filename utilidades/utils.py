@@ -22,6 +22,13 @@ def elementosNoSistemaCandidato(estadoActualElementos, subconjuntoElementos):
 
 #* Función que calcula el producto tensorial entre n vectores
 def producto_tensorial_n(vectores: list[np.ndarray]) -> np.ndarray:
+    
+    if len(vectores) == 1:
+        return vectores[0]
+    
+    if len(vectores) == 0:
+        return np.array([0])
+    
     resultado = vectores[0]
     for vector in vectores[1:]:
         resultado = np.kron(resultado, vector).flatten()
@@ -67,3 +74,20 @@ def encontrarParticionEquilibrioComplemento(particion1, subconjuntoElementos):
     p2 = (faltantesT1, faltantesT)
 
     return p2
+
+def particionComplemento(particion1, subconjuntoSistemaCandidato):
+    
+    #* calcular elementos que hacen falta en t+1 basandose en el subconjunto del sistema candidato
+    faltantesT1 = []
+    faltantesT = []
+    
+    for i in subconjuntoSistemaCandidato:
+        if 't+1' in i:
+            if i not in particion1[0]:
+                faltantesT1.append(i)
+        
+        if 't' in i and 't+1' not in i:
+            if i not in particion1[1]:
+                faltantesT.append(i)
+        
+    return (faltantesT1, faltantesT)

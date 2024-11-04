@@ -1,32 +1,29 @@
-from tkinter import messagebox, ttk
-import tkinter as tk
+import numpy as np
 
-def generarCombinacionesEstadosIniciales(n):
-    #* generar un arreglo con todas las combinaciones para n elementos en binario
-    combinaciones = []
-    for i in range(2**n):
-        combinaciones.append(bin(i)[2:].zfill(n))
-    return combinaciones
+def particionComplemento(particion1, subconjuntoSistemaCandidato):
+    print(particion1)
+    
+    #* calcular elementos que hacen falta en t+1 basandose en el subconjunto del sistema candidato
+    faltantesT1 = []
+    faltantesT = []
+    
+    for i in subconjuntoSistemaCandidato:
+        if 't+1' in i:
+            if i not in particion1[0]:
+                faltantesT1.append(i)
+        
+        if 't' in i and 't+1' not in i:
+            if i not in particion1[1]:
+                faltantesT.append(i)
+        
+    return (faltantesT1, faltantesT)
+            
+    
+particion1 = (['at+1'], ['c+1'])
+subconjuntoSistemaCandidato = np.array([
+    'at', 'bt', 'ct', 'at+1', 'bt+1',  'ct+1',
+])
 
-print(generarCombinacionesEstadosIniciales(5))
+complemento = particionComplemento(particion1, subconjuntoSistemaCandidato)
+print(complemento)
 
-combinaciones = generarCombinacionesEstadosIniciales(5)
-
-def show_selection():
-    # Obtener la opción seleccionada.
-    selection = combo.get()
-    messagebox.showinfo(
-        message=f"La opción seleccionada es: {selection}",
-        title="Selección"
-    )
-main_window = tk.Tk()
-main_window.config(width=300, height=200)
-main_window.title("Combobox")
-combo = ttk.Combobox(
-    state="readonly",
-    values=combinaciones
-)
-combo.place(x=50, y=50)
-button = ttk.Button(text="Mostrar selección", command=show_selection)
-button.place(x=50, y=100)
-main_window.mainloop()

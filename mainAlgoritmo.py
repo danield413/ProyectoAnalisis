@@ -2,11 +2,12 @@ import copy
 import numpy as np
 import time
 
+from data.cargarData import obtenerInformacionCSV
 from utilidades.evaluarParticionesFinales import evaluarParticionesFinales
 from utilidades.background import aplicarCondicionesBackground
 from utilidades.marginalizacionInicial import aplicarMarginalizacion
 from utilidades.organizarCandidatas import buscarValorUPrima, organizarParticionesCandidatasFinales
-from utilidades.utils import encontrarParticionEquilibrioComplemento, generarMatrizPresenteInicial, obtenerParticion
+from utilidades.utils import encontrarParticionEquilibrioComplemento, generarMatrizPresenteInicial, obtenerParticion, particionComplemento
 from utilidades.utils import generarMatrizFuturoInicial
 from utilidades.utils import elementosNoSistemaCandidato
 from utilidades.utils import producto_tensorial
@@ -16,16 +17,19 @@ from utilidades.vectorProbabilidad import encontrarVectorProbabilidades
 
 #? ----------------- ENTRADAS DE DATOS ---------------------------------
 
-from data.matrices import TPM
+# from data.matrices import TPM
 from data.matrices import subconjuntoSistemaCandidato
 from data.matrices import subconjuntoElementos
 from data.matrices import estadoActualElementos
-# subconjuntoSistemaCandidato, subconjuntoElementos, TPM = obtenerInformacionCSV('csv/TPM1.csv')
+_, _, TPM = obtenerInformacionCSV('csv/resultado.csv')
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
 
 matrizPresente = generarMatrizPresenteInicial( len(estadoActualElementos) )
 matrizFuturo = generarMatrizFuturoInicial(matrizPresente)
+
+# print("matrizPresente", matrizPresente)
+# print("matrizFuturo", matrizFuturo)
 
 #? ----------------- APLICAR CONDICIONES DE BACKGROUND ---------------------------------
 
@@ -41,11 +45,17 @@ nuevaMatrizFuturo = np.copy(matrizFuturo)
 #? Ejecución de las condiciones de background
 nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarCondicionesBackground(matrizPresente, nuevaTPM, elementosBackground, nuevaMatrizFuturo, estadoActualElementos)
 
+# print("nuevaMatrizPresente", nuevaMatrizPresente)
+# print("nuevaMatrizFuturo", nuevaMatrizFuturo)
+# print("nuevaTPM", nuevaTPM)
 
 #? ----------------- APLICAR MARGINALIZACIÓN INICIAL ---------------------------------
 
 nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, nuevosIndicesElementos = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente)
 
+print("nuevaMatrizPresente", nuevaMatrizPresente)
+print("nuevaMatrizFuturo", nuevaMatrizFuturo)
+print("nuevaTPM", nuevaTPM)
 
 #?  ------------------------ DIVIDIR EN LA REPRESENTACION -----------------------------------
 #? P(ABC t | ABC t+1) = P(ABC t | A t+1) X P(ABC t | B t+1) X P(ABC t | C t+1)
@@ -64,14 +74,18 @@ indicesElementosT = {list(elem.keys())[0]: idx for idx, elem in enumerate(estado
 # print("------ REPRESENTACIÓN -----------")
 partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM = partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT1, nuevosIndicesElementos)
 
+print("partirMatricesPresentes", partirMatricesPresentes)
+print("partirMatricesFuturas", partirMatricesFuturas)
+print("partirMatricesTPM", partirMatricesTPM)
+
 particionesCandidatas = []
 listaDeUPrimas = []
 
 
 print("------ ALGORITMO -----------")
 def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos):
-    V = subconjuntoSistemaCandidato #* {at, bt, ct, at+1, bt+1, ct+1}
-    
+    V = subconjuntoSistemaCandidato 
+    # print("LO QUE LLEGA DE subconjuntosistemaCandidato", V)
     #*crear un arreglo W de len(V) elementos
     W = []
     for i in range(len(V)+1):
@@ -87,6 +101,7 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
         #* se recorren los elementos V - W[i-1]
         elementosRecorrer = [elem for elem in V if elem not in W[i-1]]
+        # print("elementosRecorrer", elementosRecorrer)
 
         for elemento in elementosRecorrer:
             if 'u' not in elemento:
@@ -99,8 +114,9 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
                 # Calcula EMD(W[i-1] U {u})
                 particionNormal = obtenerParticion(wi_1Uelemento)
-                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
-
+                particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
+                
                 # Copiar matrices una sola vez
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
                 copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
@@ -133,7 +149,8 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 
                 # Calcular EMD({u})
                 particionNormal = obtenerParticion([u])
-                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
 
                 # Realizar copias de matrices una sola vez
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -165,9 +182,6 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
 
                 valorEMDFinal = valorEMDParticionNormal - valorEMDU
-                # print("          - valorEMDFinal", valorEMDFinal)
-
-                # print("elemento", elemento, "valorEMDFinal", valorEMDFinal)
                 restas.append((elemento, valorEMDFinal))
 
             #! paso importante: verificar la existencia de u
@@ -186,7 +200,8 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
                 # Calcular EMD(W[i-1] U {u})
                 particionNormal = obtenerParticion(wi_1Uelemento)
-                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
 
                 # Realizar copias de matrices una sola vez al inicio
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -221,7 +236,8 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                 
                 # Calcular EMD({u})
                 particionNormal = obtenerParticion(valor)
-                particionEquilibrio = encontrarParticionEquilibrioComplemento(particionNormal, subconjuntoElementos)
+                particionEquilibrio = particionComplemento(particionNormal, subconjuntoSistemaCandidato)
+                # print("NORMAL: ", particionNormal, "EQUILIBRIO: ", particionEquilibrio)
 
                 # Realizar copias de matrices una sola vez al inicio
                 copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
@@ -281,24 +297,38 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
 
             parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
-
-            ultimoElemento = SecuenciaResultante[-1]
-            p1 = None
-            p2 = None
-            #* si el ultimo elemento tiene t+1
-            if 't+1' in ultimoElemento:
-                p1 = ([ultimoElemento], [])
-                p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
+            print("######### parCandidato", parCandidato)
+            ultimoElemento = parCandidato[-1]
+            
+            valorUltimoElemento = []
+            if 'u' in ultimoElemento:
+                print("valor de u", ultimoElemento)
+                valorUltimoElemento = buscarValorUPrima(listaDeUPrimas, ultimoElemento)
             else:
-                p1 = ([],[ultimoElemento])
-                p2 = ([elem for elem in V if elem not in p1[0] and 't+1' in elem],[elem for elem in V if elem not in p1[1] and 't' in elem and 't+1' not in elem] )
-
-            particionCandidata = {
-                'p1': p1,
-                'p2': p2
-            }
-
-            particionesCandidatas.append(particionCandidata)
+                valorUltimoElemento = [ultimoElemento]
+                
+            print("valorUltimoElemento", valorUltimoElemento)
+            #*Crear la particion1 en base al valor del ultimo elemento, que puede tener en t y t+1
+            pedazoFuturo = []
+            pedazoPresente = []
+            for i in valorUltimoElemento:
+                if 't' in i and 't+1' not in i:
+                    if i not in pedazoPresente:
+                        pedazoPresente.append(i)
+                else:
+                    if i not in pedazoFuturo:
+                        pedazoFuturo.append(i)
+            
+            particion1 = (pedazoFuturo, pedazoPresente)
+            print("particion1", particion1)
+            
+            particion2 = particionComplemento(particion1, subconjuntoSistemaCandidato)
+            print("particion2", particion2)
+            
+            particionesCandidatas.append({
+                "p1": particion1,
+                "p2": particion2
+            })
 
             ultimoElemento = SecuenciaResultante[-1]
             
@@ -319,25 +349,26 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             if len(nuevoV) >= 2:
                 algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
        
-    particionesFinales = organizarParticionesCandidatasFinales(copy.deepcopy(particionesCandidatas), listaDeUPrimas, subconjuntoElementos)
-
-    resultado = evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
-    return resultado
+    return 1
    
-start_time = time.time()
 x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
-end_time = time.time()
-
-# Cálculo del tiempo total
-elapsed_time = end_time - start_time
-print(f"Tiempo de ejecución: {elapsed_time:.6f} segundos")
-
-print()
-print("RESULTADOS FINALES")
-for i in x["particionesEMD"]:
-    print(i[0], " con EMD ", i[1])
+print("candidatas")
+for i in particionesCandidatas:
+    print(i)
     
-print("La mejor partición es ", x["particionMenorEMD"])
-# print("LISTA DE U PRIMAS")
+y = evaluarParticionesFinales(particionesCandidatas, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
+
+print("particionesEMD")
+for i in y["particionesEMD"]:
+    print(i)
+    
+print("particionMenorEMD")
+print(y["particionMenorEMD"])
+
+# print("Organizadas")
+# for i in organizarParticionesCandidatasFinales(particionesCandidatas, listaDeUPrimas):
+#     print(i)
+    
+# print("uPrimas")
 # for i in listaDeUPrimas:
 #     print(i)

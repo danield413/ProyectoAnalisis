@@ -5,13 +5,20 @@ from utilidades.comparaciones import compararParticion
 
 def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT):
 
+    print("evaluar")
+    for i in particionesFinales:
+        i
+        
+    print(".------.")
+    
     particionMenorEMD = None
     
     particionesEMD = []
 
     for i in particionesFinales:
-        particion1 = i[0]
-        particion2 = i[1]
+        print(i)
+        particion1 = i["p1"]
+        particion2 = i["p2"]
 
         copiaMatricesPresentes = copy.deepcopy(partirMatricesPresentes)
         copiaMatricesFuturas = copy.deepcopy(partirMatricesFuturas)
