@@ -40,7 +40,8 @@ TPM = np.array([
 
 #? El subconjunto del sistema candidato a analizar (elementos en t y en t+1)
 subconjuntoSistemaCandidato = np.array([
-    'at', 'bt', 'ct', 'at+1', 'bt+1'
+    'at', 'bt', 'ct' ,
+    'at+1', 'bt+1' ,'ct+1', 'dt+1', 'et+1',
 ])
 
 
@@ -51,9 +52,9 @@ estadoActualElementos = np.array([
     {'bt': 0},
     {'ct': 0},
     {'dt': 0},
-    {'et': 1}
+    {'et': 1},
 ])
 
 #? SISTEMA CANDIDATO
 #? Subconjunto de elementos a analizar en t
-subconjuntoElementos = np.array(['at','bt','ct'])
+subconjuntoElementos = np.array(['at', 'bt', 'ct', 'dt', 'et'])

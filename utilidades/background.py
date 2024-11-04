@@ -7,6 +7,11 @@ import numpy as np
 #? elementosBackground: elementos del background {elemento: valor inicial}
 def aplicarCondicionesBackground(nuevaMatrizPresente, nuevaTPM, elementosBackground, nuevaMatrizFuturo, estadoActualElementos):
     
+    print("elementosBackground", elementosBackground)
+    
+    if elementosBackground == []:
+        return nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM
+    
     if len(elementosBackground) > 0:
 
         #* Extraemos primero los indices con su respectivo elemento del estado actual
@@ -44,5 +49,4 @@ def aplicarCondicionesBackground(nuevaMatrizPresente, nuevaTPM, elementosBackgro
             #* Ahora eliminamos las columnas de la matriz futura que estén en la posición indice
             nuevaTPM = np.delete(nuevaTPM, filas_a_eliminar, axis=0)
 
-    
-    return nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM
+        return nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM

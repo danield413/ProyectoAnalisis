@@ -5,10 +5,10 @@ def generarMatrizPresenteInicial(n):
     # Generamos un array de números de 0 a 2^n - 1
     combinaciones = np.arange(2 ** n)
     
-    # Convertimos cada número a su representación binaria, rellenamos con ceros, invertimos (little-endian)
-    binario_array = np.unpackbits(combinaciones[:, None].astype(np.uint8), axis=1)[:, -n:]
+    # Convertimos cada número a su representación binaria con n bits y lo formateamos en una matriz
+    binario_array = np.array([list(format(num, f'0{n}b')) for num in combinaciones], dtype=int)
     
-    return np.fliplr(binario_array)
+    return binario_array
 
 import numpy as np
 

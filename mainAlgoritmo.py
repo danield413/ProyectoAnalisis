@@ -21,15 +21,21 @@ from utilidades.vectorProbabilidad import encontrarVectorProbabilidades
 from data.matrices import subconjuntoSistemaCandidato
 from data.matrices import subconjuntoElementos
 from data.matrices import estadoActualElementos
-_, _, TPM = obtenerInformacionCSV('csv/resultado.csv')
+_, _, TPM = obtenerInformacionCSV('csv/red5.csv')
+
 
 #? ----------------- MATRIZ PRESENTE Y MATRIZ FUTURO ---------------------------------
+
 
 matrizPresente = generarMatrizPresenteInicial( len(estadoActualElementos) )
 matrizFuturo = generarMatrizFuturoInicial(matrizPresente)
 
-# print("matrizPresente", matrizPresente)
+# print("matrizPresente", matrizPresente[0])
 # print("matrizFuturo", matrizFuturo)
+# print("filas matriz presente", len(matrizPresente))
+# print("filas matriz futuro", len(matrizFuturo))
+
+
 
 #? ----------------- APLICAR CONDICIONES DE BACKGROUND ---------------------------------
 
@@ -45,17 +51,17 @@ nuevaMatrizFuturo = np.copy(matrizFuturo)
 #? Ejecución de las condiciones de background
 nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM = aplicarCondicionesBackground(matrizPresente, nuevaTPM, elementosBackground, nuevaMatrizFuturo, estadoActualElementos)
 
-# print("nuevaMatrizPresente", nuevaMatrizPresente)
-# print("nuevaMatrizFuturo", nuevaMatrizFuturo)
-# print("nuevaTPM", nuevaTPM)
+# print("nuevaMatrizPresente", nuevaMatrizPresente, len(nuevaMatrizPresente))
+# print("nuevaMatrizFuturo", nuevaMatrizFuturo, len(nuevaMatrizFuturo))
+# print("nuevaTPM", nuevaTPM, len(nuevaTPM))
 
 #? ----------------- APLICAR MARGINALIZACIÓN INICIAL ---------------------------------
 
 nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, nuevosIndicesElementos = aplicarMarginalizacion(nuevaMatrizFuturo, nuevaTPM, elementosBackground, estadoActualElementos, nuevaMatrizPresente)
 
-print("nuevaMatrizPresente", nuevaMatrizPresente)
-print("nuevaMatrizFuturo", nuevaMatrizFuturo)
-print("nuevaTPM", nuevaTPM)
+# print("nuevaMatrizPresente", nuevaMatrizPresente)
+# print("nuevaMatrizFuturo", nuevaMatrizFuturo)
+# print("nuevaTPM", nuevaTPM)
 
 #?  ------------------------ DIVIDIR EN LA REPRESENTACION -----------------------------------
 #? P(ABC t | ABC t+1) = P(ABC t | A t+1) X P(ABC t | B t+1) X P(ABC t | C t+1)
@@ -297,17 +303,17 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
 
 
             parCandidato = (SecuenciaResultante[-2], SecuenciaResultante[-1])
-            print("######### parCandidato", parCandidato)
+            # print("######### parCandidato", parCandidato)
             ultimoElemento = parCandidato[-1]
             
             valorUltimoElemento = []
             if 'u' in ultimoElemento:
-                print("valor de u", ultimoElemento)
+                # print("valor de u", ultimoElemento)
                 valorUltimoElemento = buscarValorUPrima(listaDeUPrimas, ultimoElemento)
             else:
                 valorUltimoElemento = [ultimoElemento]
                 
-            print("valorUltimoElemento", valorUltimoElemento)
+            # print("valorUltimoElemento", valorUltimoElemento)
             #*Crear la particion1 en base al valor del ultimo elemento, que puede tener en t y t+1
             pedazoFuturo = []
             pedazoPresente = []
@@ -320,10 +326,10 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
                         pedazoFuturo.append(i)
             
             particion1 = (pedazoFuturo, pedazoPresente)
-            print("particion1", particion1)
+            # print("particion1", particion1)
             
             particion2 = particionComplemento(particion1, subconjuntoSistemaCandidato)
-            print("particion2", particion2)
+            # print("particion2", particion2)
             
             particionesCandidatas.append({
                 "p1": particion1,
@@ -349,26 +355,19 @@ def algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estad
             if len(nuevoV) >= 2:
                 algoritmo(nuevaTPM, subconjuntoElementos, nuevoV, estadoActualElementos)
        
-    return 1
-   
+    return evaluarParticionesFinales(particionesCandidatas, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
+
+start_time = time.time()
 x = algoritmo(nuevaTPM, subconjuntoElementos, subconjuntoSistemaCandidato, estadoActualElementos)
 print("candidatas")
-for i in particionesCandidatas:
-    print(i)
-    
-y = evaluarParticionesFinales(particionesCandidatas, partirMatricesPresentes, partirMatricesFuturas, partirMatricesTPM, estadoActualElementos, subconjuntoElementos, indicesElementosT, nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, elementosT)
+end_time = time.time()
 
-print("particionesEMD")
-for i in y["particionesEMD"]:
-    print(i)
-    
+print("Tiempo de ejecución: ", end_time - start_time)
+
 print("particionMenorEMD")
-print(y["particionMenorEMD"])
+print(x["particionMenorEMD"][0])
+print("Con valor EMD")
+print(x["particionMenorEMD"][1])
 
-# print("Organizadas")
-# for i in organizarParticionesCandidatasFinales(particionesCandidatas, listaDeUPrimas):
-#     print(i)
-    
-# print("uPrimas")
-# for i in listaDeUPrimas:
-#     print(i)
+print("vectorParticionMenorEMD")
+print(x["vectorParticionMenorEMD"].tolist())

@@ -13,6 +13,7 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
     for elementoT1 in elementosT1:
         # print("elementoT1", elementoT1)
 
+        # print("COPIA: nuevaMatrizFuturo", nuevaMatrizFuturo)
         copiaMatrizFuturo = copy.deepcopy(nuevaMatrizFuturo)
         copiaTPM = copy.deepcopy(nuevaTPM)
 
@@ -28,8 +29,12 @@ def partirRepresentacion(nuevaMatrizPresente, nuevaMatrizFuturo, nuevaTPM, eleme
                     break
             if not tieneIndice:
                 continue
+            
+            print(len(nuevaMatrizPresente))
+            # print("indicesElementosT", indicesElementosT)
+            # # print("len(copiaMatrizFuturo)", len(copiaMatrizFuturo))
             indice = indicesElementosT[elementoT1[:-2]+'+1']
-            print("elemento", elementoT1, "indice:",indice)
+            # print("elemento", elementoT1, "indice:",indice)
             #* borrar las filas de la matriz futuro excepto la fila indice
             
             

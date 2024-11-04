@@ -12,6 +12,7 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
     print(".------.")
     
     particionMenorEMD = None
+    vectorParticionMenorEMD = None
     
     particionesEMD = []
 
@@ -39,11 +40,14 @@ def evaluarParticionesFinales(particionesFinales, partirMatricesPresentes, parti
         
         if particionMenorEMD == None:
             particionMenorEMD = (i, valorEMD)
+            vectorParticionMenorEMD = vectorResultado
         else:
             if valorEMD < particionMenorEMD[1]:
                 particionMenorEMD = (i, valorEMD)
+                vectorParticionMenorEMD = vectorResultado
 
     return {
         "particionesEMD": particionesEMD,
-        "particionMenorEMD": particionMenorEMD
+        "particionMenorEMD": particionMenorEMD,
+        "vectorParticionMenorEMD": vectorParticionMenorEMD
     }
